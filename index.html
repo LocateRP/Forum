@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Форум Locate RP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-body: #0f0f0f; --bg-panel: #1a1a1a; --bg-header: #141414; --border: #2a2a2a; --text-main: #e0e0e0; --text-muted: #888; --accent-orange: #f97316; --accent-green: #22c55e; --accent-red: #ef4444; --accent-blue: #3b82f6; --font: 'Inter', sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--bg-body); color: var(--text-main); font-family: var(--font); font-size: 13px; line-height: 1.4; }
+        a { text-decoration: none; color: inherit; } button { font-family: var(--font); cursor: pointer; }
+        .navbar { background-color: var(--bg-header); border-bottom: 1px solid var(--border); padding: 0 20px; height: 50px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .logo-area { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; color: var(--accent-orange); }
+        .logo-area span { color: #fff; }
+        .auth-buttons { display: flex; gap: 10px; align-items: center; } .user-profile { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+        .user-profile span { color: var(--accent-orange); font-weight: 600; }
+        .btn-login, .btn-reg, .btn-logout, .btn-avatar, .btn-tickets { padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; border: none; }
+        .btn-login { background: #2a2a2a; color: #fff; border: 1px solid #333; } .btn-reg { background: var(--accent-orange); color: #000; }
+        .btn-logout { background: transparent; color: var(--accent-red); border: 1px solid var(--accent-red); }
+        .btn-avatar { background: #2a2a2a; color: #fff; border: 1px solid #333; }
+        .btn-tickets { background: var(--accent-blue); color: #fff; position: relative; }
+        .ticket-badge { position: absolute; top: -5px; right: -5px; background: var(--accent-red); color: #fff; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; display: flex; align-items: center; justify-content: center; }
+        
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: var(--bg-panel); border: 1px solid var(--border); padding: 25px; border-radius: 8px; width: 400px; display: flex; flex-direction: column; gap: 15px; }
+        .modal h2 { font-size: 18px; margin-bottom: 10px; text-align: center; }
+        .modal input, .modal textarea, .modal select { background: #111; border: 1px solid var(--border); padding: 10px; border-radius: 4px; color: #fff; font-family: var(--font); resize: none; width: 100%; }
+        .modal input:focus, .modal textarea:focus { outline: 1px solid var(--accent-orange); }
+        .modal button { background: var(--accent-orange); color: #000; font-weight: 700; padding: 10px; border: none; border-radius: 4px; }
+        .modal-switch { text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 10px; cursor: pointer; }
+        .modal-switch:hover { color: #fff; }
+        
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; display: grid; grid-template-columns: 2.2fr 1fr; gap: 20px; }
+        .page-title { grid-column: 1 / -1; font-size: 24px; font-weight: 700; margin-bottom: 5px; }
+        .page-subtitle { grid-column: 1 / -1; font-size: 12px; color: var(--text-muted); margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+        .panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 20px; overflow: hidden; }
+        .panel-header { padding: 12px 15px; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
+        .section-item { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--border); transition: background 0.1s; cursor: pointer; }
+        .section-item:last-child { border-bottom: none; } .section-item:hover { background: #222; }
+        .sec-icon { width: 32px; height: 32px; background: #2a2a2a; border-radius: 4px; margin-right: 12px; display: flex; align-items: center; justify-content: center; color: var(--accent-orange); font-size: 16px; flex-shrink: 0; }
+        .sec-info { flex-grow: 1; } .sec-title { font-weight: 600; font-size: 14px; display: block; margin-bottom: 2px; }
+        .sec-desc { font-size: 11px; color: var(--text-muted); }
+        .delete-forum-btn { background: transparent; border: none; color: var(--accent-red); font-size: 16px; cursor: pointer; padding: 5px; margin-left: 10px; opacity: 0.5; transition: opacity 0.2s; }
+        .delete-forum-btn:hover { opacity: 1; }
+        .server-wrapper { padding: 10px; }
+        .server-card { background: #1f1f1f; border: 1px solid var(--border); border-radius: 6px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+        .server-top { display: flex; justify-content: space-between; align-items: center; }
+        .server-name { font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+        .server-name .badge { font-size: 9px; background: #333; padding: 2px 5px; border-radius: 3px; color: #aaa; font-weight: 400; }
+        .status { padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 600; }
+        .status.offline { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+        .user-card { padding: 10px 15px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+        .avatar { width: 32px; height: 32px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; color: var(--accent-orange); flex-shrink: 0; overflow: hidden; }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .user-info { flex-grow: 1; } .user-name { font-weight: 600; font-size: 12px; display: block; } .user-role { font-size: 10px; color: var(--text-muted); }
+        .online-indicator { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-left: auto; }
+        .online-indicator.online { background-color: var(--accent-green); box-shadow: 0 0 5px var(--accent-green); }
+        .online-indicator.offline { background-color: #555; }
+        .action-btn { width: 100%; padding: 10px; background: var(--accent-orange); color: #000; font-weight: 700; border: none; border-radius: 4px; font-size: 13px; transition: opacity 0.2s; margin-bottom: 10px; }
+        .action-btn:hover { opacity: 0.9; } .action-btn.secondary { background: #2a2a2a; color: #fff; border: 1px solid #333; }
+        .action-btn.blue { background: var(--accent-blue); color: #fff; }
+        .news-item { padding: 15px; border-bottom: 1px solid var(--border); } .news-item:last-child { border-bottom: none; }
+        .news-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .news-author { font-weight: 600; font-size: 13px; color: var(--accent-orange); } .news-date { font-size: 11px; color: var(--text-muted); }
+        .news-title { font-weight: 600; font-size: 14px; margin-bottom: 5px; color: #fff; } .news-text { font-size: 12px; color: #ccc; line-height: 1.5; }
+        .news-form { padding: 15px; background: #1f1f1f; border-bottom: 1px solid var(--border); }
+        .news-form input, .news-form textarea { width: 100%; background: #111; border: 1px solid var(--border); padding: 10px; border-radius: 4px; color: #fff; font-family: var(--font); font-size: 12px; margin-bottom: 10px; resize: none; }
+        .news-form button { width: 100%; background: var(--accent-orange); color: #000; font-weight: 700; padding: 10px; border: none; border-radius: 4px; font-size: 12px; }
+        
+        .forum-topic-modal { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px; width: 90%; max-width: 800px; height: 80vh; display: flex; flex-direction: column; }
+        .forum-topic-header { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-header); border-radius: 8px 8px 0 0; }
+        .forum-topic-header h2 { font-size: 18px; color: var(--accent-orange); } .forum-topic-close { background: none; border: none; color: #888; font-size: 20px; cursor: pointer; }
+        .forum-topic-close:hover { color: #fff; } .forum-topic-messages { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .topic-msg { background: #1f1f1f; padding: 12px; border-radius: 6px; border: 1px solid #2a2a2a; }
+        .topic-msg-header { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 11px; }
+        .topic-msg-author { color: var(--accent-orange); font-weight: 600; font-size: 12px; } .topic-msg-date { color: var(--text-muted); } .topic-msg-text { font-size: 13px; color: #ddd; }
+        .forum-topic-form { padding: 15px; border-top: 1px solid var(--border); background: #111; border-radius: 0 0 8px 8px; display: flex; gap: 10px; }
+        .forum-topic-form input { flex-grow: 1; background: #1f1f1f; border: 1px solid var(--border); padding: 10px; border-radius: 4px; color: #fff; }
+        .forum-topic-form button { background: var(--accent-orange); color: #000; font-weight: 700; border: none; padding: 0 20px; border-radius: 4px; }
+        
+        .ticket-item { padding: 15px; border-bottom: 1px solid var(--border); background: #1a1a1a; cursor: pointer; transition: background 0.1s; }
+        .ticket-item:hover { background: #222; }
+        .ticket-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 11px; color: var(--text-muted); }
+        .ticket-target { color: var(--accent-red); font-weight: 700; font-size: 13px; margin-bottom: 5px; }
+        .ticket-desc { font-size: 12px; color: #ccc; margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .ticket-chat-area { display: flex; flex-direction: column; height: 100%; }
+        .ticket-chat-messages { flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #111; }
+        .chat-msg { max-width: 80%; padding: 8px 12px; border-radius: 6px; font-size: 12px; line-height: 1.4; }
+        .chat-msg.player { align-self: flex-start; background: #2a2a2a; color: #fff; border: 1px solid #333; }
+        .chat-msg.admin { align-self: flex-end; background: rgba(249, 115, 22, 0.2); color: #fff; border: 1px solid var(--accent-orange); }
+        .chat-msg-info { font-size: 9px; color: #888; margin-bottom: 2px; display: block; }
+        .ticket-chat-form { display: flex; gap: 10px; padding: 15px; background: #1a1a1a; border-top: 1px solid var(--border); }
+        .ticket-chat-form input { flex-grow: 1; background: #111; border: 1px solid #333; padding: 10px; border-radius: 4px; color: #fff; }
+        .ticket-chat-form button { background: var(--accent-orange); color: #000; font-weight: 700; border: none; padding: 0 20px; border-radius: 4px; }
+
+        .status-toggle-area { display: flex; gap: 5px; margin-top: 10px; }
+        .status-toggle-area button { flex: 1; padding: 5px; font-size: 10px; border-radius: 3px; border: none; font-weight: 600; cursor: pointer; }
+        .status-toggle-area .online-btn { background: rgba(34, 197, 94, 0.2); color: var(--accent-green); }
+        .status-toggle-area .offline-btn { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
+        .status-toggle-area .active { border: 1px solid currentColor; }
+        
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg-body); } ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo-area">
+            <div style="background: var(--accent-orange); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 14px; font-weight: 800;">LOCATE</div>
+            <span>RP</span>
+        </div>
+        <div class="auth-buttons" id="auth-area"></div>
+    </nav>
+
+    <div class="container">
+        <div class="page-title">Форум Locate RP — Твой новый уровень ролевой игры!</div>
+        <div class="page-subtitle">Мы рекомендуем прочитать правила перед началом общения.</div>
+
+        <div class="main-column">
+            <div id="complaint-btn-area"></div>
+            <div id="create-forum-area"></div>
+            <div class="panel">
+                <div class="panel-header">Разделы форума</div>
+                <div id="forums-container"></div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">Игровые сервера</div>
+                <div class="server-wrapper">
+                    <div class="server-card">
+                        <div class="server-top">
+                            <div class="server-name">Сервер Locate RP <span class="badge">NEW</span></div>
+                            <div class="status offline">Оффлайн</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">Новости проекта</div>
+                <div id="news-form-area"></div>
+                <div id="news-container"></div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div id="admin-panel-area"></div>
+            <div class="panel" id="complaints-panel" style="display: none;">
+                <div class="panel-header">Входящие жалобы</div>
+                <div id="complaints-container"></div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">Администрация</div>
+                <div class="user-card">
+                    <div class="avatar" id="avatar-Forus">F</div>
+                    <div class="user-info"><span class="user-name">Forus</span><span class="user-role">Главный Админ</span></div>
+                    <div class="online-indicator" id="status-Forus"></div>
+                </div>
+                <div class="user-card">
+                    <div class="avatar" id="avatar-Avelon">A</div>
+                    <div class="user-info"><span class="user-name">Avelon</span><span class="user-role">Главный Админ</span></div>
+                    <div class="online-indicator" id="status-Avelon"></div>
+                </div>
+                <div id="status-control-area" style="padding: 10px 15px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалки -->
+    <div class="modal-overlay" id="login-modal">
+        <div class="modal">
+            <h2>Вход</h2>
+            <input type="text" id="login-username" placeholder="Логин">
+            <input type="password" id="login-password" placeholder="Пароль">
+            <button onclick="login()">Войти</button>
+            <div class="modal-switch" onclick="switchModal('login')">Нет аккаунта? Зарегистрироваться</div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="register-modal">
+        <div class="modal">
+            <h2>Регистрация</h2>
+            <input type="text" id="reg-username" placeholder="Логин">
+            <input type="password" id="reg-password" placeholder="Пароль">
+            <button onclick="register()">Создать аккаунт</button>
+            <div class="modal-switch" onclick="switchModal('register')">Уже есть аккаунт? Войти</div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="create-forum-modal">
+        <div class="modal">
+            <h2>Создать форум</h2>
+            <input type="text" id="forum-name" placeholder="Название форума">
+            <textarea id="forum-desc" placeholder="Краткое описание" rows="3"></textarea>
+            <button onclick="createForum()">Создать</button>
+            <div class="modal-switch" onclick="closeModals()">Отмена</div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="grant-admin-modal">
+        <div class="modal">
+            <h2>Выдать админку</h2>
+            <input type="text" id="grant-username" placeholder="Никнейм пользователя">
+            <button onclick="grantAdmin()">Выдать права</button>
+            <div class="modal-switch" onclick="closeModals()">Отмена</div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="view-forum-modal">
+        <div class="forum-topic-modal">
+            <div class="forum-topic-header">
+                <h2 id="view-forum-title">Название форума</h2>
+                <button class="forum-topic-close" onclick="closeModals()">✖</button>
+            </div>
+            <div class="forum-topic-messages" id="view-forum-messages"></div>
+            <div id="view-forum-form-area"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="complaint-modal">
+        <div class="modal">
+            <h2>Подать жалобу</h2>
+            <input type="text" id="complaint-target" placeholder="Ник нарушителя">
+            <textarea id="complaint-desc" placeholder="Опишите ситуацию" rows="4"></textarea>
+            <input type="text" id="complaint-file" placeholder="Ссылка на фото/видео (доказательство)">
+            <button onclick="submitComplaint()">Отправить</button>
+            <div class="modal-switch" onclick="closeModals()">Отмена</div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="avatar-modal">
+        <div class="modal">
+            <h2>Сменить аватарку</h2>
+            <input type="text" id="avatar-url" placeholder="Ссылка на картинку (http://...)">
+            <button onclick="changeAvatar()">Сохранить</button>
+            <div class="modal-switch" onclick="closeModals()">Отмена</div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="my-tickets-modal">
+        <div class="forum-topic-modal">
+            <div class="forum-topic-header">
+                <h2>Мои обращения</h2>
+                <button class="forum-topic-close" onclick="closeModals()">✖</button>
+            </div>
+            <div id="my-tickets-list" style="flex-grow: 1; overflow-y: auto; padding: 20px;"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="ticket-chat-modal">
+        <div class="forum-topic-modal">
+            <div class="forum-topic-header">
+                <h2 id="ticket-chat-title">Чат жалобы</h2>
+                <button class="forum-topic-close" onclick="closeModals()">✖</button>
+            </div>
+            <div class="ticket-chat-area">
+                <div class="ticket-chat-messages" id="ticket-chat-messages"></div>
+                <div class="ticket-chat-form">
+                    <input type="text" id="ticket-reply-input" placeholder="Написать ответ...">
+                    <button onclick="sendTicketReply()">Отправить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, push, set, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCHLRcF0szzo2GWqffETxVQ1BZ_qUEiu_k",
+            authDomain: "forumlocaterp.firebaseapp.com",
+            databaseURL: "https://forumlocaterp-default-rtdb.firebaseio.com",
+            projectId: "forumlocaterp",
+            storageBucket: "forumlocaterp.firebasestorage.app",
+            messagingSenderId: "366374294851",
+            appId: "1:366374294851:web:7b1ed24beac717368c4bf6",
+            measurementId: "G-MN3TNW6K2L"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const usersRef = ref(db, 'users');
+        const forumsRef = ref(db, 'forums');
+        const newsRef = ref(db, 'news');
+        const messagesRef = ref(db, 'messages');
+        const complaintsRef = ref(db, 'complaints');
+        const statusRef = ref(db, 'status');
+
+        let currentUser = null;
+        let allUsers = [];
+        let allForums = [];
+        let allNews = [];
+        let allComplaints = [];
+        let currentForumId = null;
+        let currentTicketId = null;
+        let unsubscribeMessages = null;
+        let unsubscribeTicketChat = null;
+
+        const savedUser = localStorage.getItem('locate_currentUser');
+        if (savedUser) {
+            try { currentUser = JSON.parse(savedUser); } catch(e) {}
+        }
+
+        // --- СЛУШАТЕЛИ БАЗЫ ---
+        onValue(usersRef, (snapshot) => {
+            const data = snapshot.val();
+            allUsers = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+            
+            if (allUsers.length === 0) {
+                push(usersRef, { username: 'Forus', password: 'pppppp00', role: 'Главный Админ', canGrant: true, avatar: '' });
+                push(usersRef, { username: 'Avelon', password: 'adminLocateRP', role: 'Главный Админ', canGrant: true, avatar: '' });
+            }
+
+            if (currentUser) {
+                const updated = allUsers.find(u => u.username === currentUser.username);
+                if (updated) {
+                    currentUser = updated;
+                    localStorage.setItem('locate_currentUser', JSON.stringify(currentUser));
+                }
+            }
+            updateUI();
+        });
+
+        onValue(forumsRef, (snapshot) => {
+            const data = snapshot.val();
+            allForums = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse() : [];
+            renderForums();
+        });
+
+        onValue(newsRef, (snapshot) => {
+            const data = snapshot.val();
+            allNews = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse() : [];
+            renderNews();
+        });
+
+        onValue(complaintsRef, (snapshot) => {
+            const data = snapshot.val();
+            allComplaints = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse() : [];
+            renderComplaints();
+            if(currentUser) renderMyTickets();
+        });
+
+        onValue(statusRef, (snapshot) => {
+            const statusData = snapshot.val() || {};
+            const forusEl = document.getElementById('status-Forus');
+            const avelonEl = document.getElementById('status-Avelon');
+            if(forusEl) forusEl.className = 'online-indicator ' + (statusData['Forus'] || 'offline');
+            if(avelonEl) avelonEl.className = 'online-indicator ' + (statusData['Avelon'] || 'offline');
+        });
+
+        // --- АВТОРИЗАЦИЯ ---
+        window.openModal = (type) => document.getElementById(type + '-modal').classList.add('active');
+        window.closeModals = () => document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('active'));
+        window.switchModal = (type) => { closeModals(); openModal(type === 'login' ? 'register' : 'login'); };
+
+        window.register = () => {
+            const user = document.getElementById('reg-username').value.trim();
+            const pass = document.getElementById('reg-password').value.trim();
+            if (!user || !pass) return alert('Заполните все поля!');
+            if (allUsers.find(u => u.username.toLowerCase() === user.toLowerCase())) return alert('Этот логин уже занят!');
+            push(usersRef, { username: user, password: pass, role: 'Пользователь', canGrant: false, avatar: '' });
+            alert('Регистрация успешна! Теперь войдите.');
+            switchModal('register');
+        };
+
+        window.login = () => {
+            const user = document.getElementById('login-username').value.trim();
+            const pass = document.getElementById('login-password').value.trim();
+            const foundUser = allUsers.find(u => u.username === user && u.password === pass);
+
+            if (foundUser) {
+                currentUser = foundUser;
+                localStorage.setItem('locate_currentUser', JSON.stringify(currentUser));
+                closeModals();
+                document.getElementById('login-username').value = '';
+                document.getElementById('login-password').value = '';
+                updateUI();
+            } else {
+                alert('Неверный логин или пароль!');
+            }
+        };
+
+        window.logout = () => {
+            currentUser = null;
+            localStorage.removeItem('locate_currentUser');
+            updateUI();
+        };
+
+        // --- АВАТАРКА ---
+        window.changeAvatar = () => {
+            const url = document.getElementById('avatar-url').value.trim();
+            if (!url) return alert('Введите ссылку!');
+            set(ref(db, 'users/' + currentUser.id + '/avatar'), url).then(() => {
+                currentUser.avatar = url;
+                localStorage.setItem('locate_currentUser', JSON.stringify(currentUser));
+                closeModals();
+                updateUI();
+            });
+        };
+
+        // --- СТАТУС ---
+        window.setUserStatus = (status) => {
+            if (!currentUser) return;
+            set(ref(db, 'status/' + currentUser.username), status);
+            updateStatusButtons(status);
+        };
+
+        // --- ФОРУМЫ ---
+        window.createForum = () => {
+            const name = document.getElementById('forum-name').value.trim();
+            const desc = document.getElementById('forum-desc').value.trim();
+            if (!name) return alert('Введите название!');
+            push(forumsRef, { title: name, desc: desc || 'Без описания', icon: '💬' });
+            document.getElementById('forum-name').value = '';
+            document.getElementById('forum-desc').value = '';
+            closeModals();
+        };
+
+        window.deleteForum = (event, id) => {
+            event.stopPropagation();
+            if (!confirm('Удалить форум?')) return;
+            remove(ref(db, 'forums/' + id));
+            remove(ref(db, 'messages/' + id));
+        };
+
+        window.createNews = () => {
+            const title = document.getElementById('news-title-input').value.trim();
+            const text = document.getElementById('news-text-input').value.trim();
+            if (!title || !text) return alert('Заполните новость!');
+            const dateStr = new Date().toLocaleDateString('ru-RU');
+            push(newsRef, { author: currentUser.username, title: title, text: text, date: dateStr });
+            document.getElementById('news-title-input').value = '';
+            document.getElementById('news-text-input').value = '';
+        };
+
+        window.grantAdmin = () => {
+            const targetUser = document.getElementById('grant-username').value.trim();
+            if (!targetUser) return alert('Введите никнейм!');
+            const userToGrant = allUsers.find(u => u.username.toLowerCase() === targetUser.toLowerCase());
+            if (!userToGrant) return alert('Пользователь не найден!');
+            set(ref(db, 'users/' + userToGrant.id + '/role'), 'Админ');
+            alert(`Пользователь ${userToGrant.username} теперь Админ!`);
+            document.getElementById('grant-username').value = '';
+            closeModals();
+        };
+
+        window.openForum = (id, title) => {
+            currentForumId = id;
+            document.getElementById('view-forum-title').innerText = title;
+            openModal('view-forum');
+            if (unsubscribeMessages) unsubscribeMessages();
+            const thisForumMessagesRef = ref(db, 'messages/' + id);
+            unsubscribeMessages = onValue(thisForumMessagesRef, (snapshot) => {
+                renderTopicMessages(snapshot.val());
+            });
+        };
+
+        // --- ЖАЛОБЫ (ИСПРАВЛЕНО) ---
+        window.submitComplaint = () => {
+            const target = document.getElementById('complaint-target').value.trim();
+            const desc = document.getElementById('complaint-desc').value.trim();
+            const file = document.getElementById('complaint-file').value.trim();
+            if (!target || !desc) return alert('Заполните ник и описание!');
+
+            const dateStr = new Date().toLocaleDateString('ru-RU') + ' ' + new Date().toLocaleTimeString('ru-RU').slice(0, 5);
+            
+            // 1. Создаем саму жалобу
+            const newTicketRef = push(complaintsRef);
+            set(newTicketRef, { 
+                author: currentUser.username, 
+                target: target, 
+                desc: desc, 
+                file: file || 'Нет', 
+                date: dateStr,
+                status: 'open'
+            }).then(() => {
+                // 2. Отдельно создаем первое сообщение в чате
+                const firstMsgRef = ref(db, 'complaints/' + newTicketRef.key + '/chat/' + Date.now());
+                set(firstMsgRef, {
+                    author: currentUser.username,
+                    text: `Жалоба на: ${target}\n${desc}\nСсылка на док-во: ${file || 'Нет'}`,
+                    isAdmin: false,
+                    time: dateStr
+                });
+            }).catch((error) => {
+                console.error("Ошибка Firebase: ", error);
+                alert("Ошибка при отправке. Проверьте правила Firebase (Rules).");
+            });
+
+            document.getElementById('complaint-target').value = '';
+            document.getElementById('complaint-desc').value = '';
+            document.getElementById('complaint-file').value = '';
+            closeModals();
+            alert('Жалоба отправлена!');
+        };
+
+        window.openTicketChat = (ticketId) => {
+            currentTicketId = ticketId;
+            openModal('ticket-chat-modal');
+            
+            if (unsubscribeTicketChat) unsubscribeTicketChat();
+            
+            const chatRef = ref(db, 'complaints/' + ticketId + '/chat');
+            unsubscribeTicketChat = onValue(chatRef, (snapshot) => {
+                renderTicketChat(snapshot.val());
+            });
+
+            const isAdmin = currentUser && currentUser.canGrant;
+            const header = document.getElementById('ticket-chat-title');
+            header.innerHTML = `Чат жалобы ${isAdmin ? '<button onclick="closeTicket()" style="background:var(--accent-red);color:#fff;border:none;padding:5px 10px;border-radius:4px;margin-left:10px;cursor:pointer;">Закрыть</button>' : ''}`;
+        };
+
+        window.sendTicketReply = () => {
+            const input = document.getElementById('ticket-reply-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const isAdmin = currentUser.role.includes('Админ');
+            const dateStr = new Date().toLocaleDateString('ru-RU') + ' ' + new Date().toLocaleTimeString('ru-RU').slice(0, 5);
+
+            const newMsgRef = ref(db, 'complaints/' + currentTicketId + '/chat/' + Date.now());
+            set(newMsgRef, {
+                author: currentUser.username,
+                text: text,
+                isAdmin: isAdmin,
+                time: dateStr
+            });
+
+            input.value = '';
+        };
+
+        window.closeTicket = () => {
+            if (!confirm('Вы уверены, что хотите закрыть и удалить эту жалобу?')) return;
+            remove(ref(db, 'complaints/' + currentTicketId));
+            closeModals();
+        };
+
+        window.openMyTickets = () => {
+            openModal('my-tickets-modal');
+            renderMyTickets();
+        };
+
+        // --- ОТРИСОВКА ---
+        function renderForums() {
+            const container = document.getElementById('forums-container');
+            if (allForums.length === 0) {
+                container.innerHTML = `<div style="padding: 15px; color: #888; text-align: center;">Пока нет ни одного форума.</div>`;
+                return;
+            }
+            const canDelete = currentUser && currentUser.canGrant;
+            container.innerHTML = allForums.map(f => {
+                const safeTitle = f.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                return `
+                <div class="section-item" onclick="openForum('${f.id}', '${safeTitle}')">
+                    <div class="sec-icon">${f.icon}</div>
+                    <div class="sec-info"><span class="sec-title">${f.title}</span><span class="sec-desc">${f.desc}</span></div>
+                    ${canDelete ? `<button class="delete-forum-btn" onclick="deleteForum(event, '${f.id}')">✖</button>` : ''}
+                </div>`;
+            }).join('');
+        }
+
+        function renderNews() {
+            const container = document.getElementById('news-container');
+            if (allNews.length === 0) return container.innerHTML = `<div style="padding: 15px; color: #888; text-align: center;">Новостей пока нет.</div>`;
+            container.innerHTML = allNews.map(n => `
+                <div class="news-item">
+                    <div class="news-header"><span class="news-author">${n.author}</span><span class="news-date">${n.date}</span></div>
+                    <div class="news-title">${n.title}</div>
+                    <div class="news-text">${n.text}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderTopicMessages(msgsObj) {
+            const container = document.getElementById('view-forum-messages');
+            const formArea = document.getElementById('view-forum-form-area');
+            const msgs = msgsObj ? Object.values(msgsObj).reverse() : [];
+
+            if (msgs.length === 0) {
+                container.innerHTML = `<div style="text-align: center; color: #888; margin-top: 20px;">Здесь пока пусто.</div>`;
+            } else {
+                container.innerHTML = msgs.map(m => `
+                    <div class="topic-msg">
+                        <div class="topic-msg-header"><span class="topic-msg-author">${m.author}</span><span class="topic-msg-date">${m.date}</span></div>
+                        <div class="topic-msg-text">${m.text}</div>
+                    </div>
+                `).join('');
+            }
+
+            if (currentUser && currentUser.role.includes('Админ')) {
+                formArea.innerHTML = `
+                    <div class="forum-topic-form">
+                        <input type="text" id="topic-msg-input" placeholder="Написать сообщение (только для админов)...">
+                        <button onclick="sendTopicMessage()">Отправить</button>
+                    </div>`;
+            } else {
+                formArea.innerHTML = `<div style="padding: 15px; text-align: center; color: #888; font-size: 12px;">Только администрация может писать сюда.</div>`;
+            }
+        }
+
+        function renderComplaints() {
+            const panel = document.getElementById('complaints-panel');
+            const container = document.getElementById('complaints-container');
+
+            if (currentUser && currentUser.canGrant) {
+                panel.style.display = 'block';
+                if (allComplaints.length === 0) {
+                    container.innerHTML = `<div style="padding: 15px; color: #888; text-align: center;">Жалоб пока нет.</div>`;
+                } else {
+                    container.innerHTML = allComplaints.map(c => `
+                        <div class="ticket-item" onclick="openTicketChat('${c.id}')">
+                            <div class="ticket-header"><span>От: ${c.author}</span><span>${c.date}</span></div>
+                            <div class="ticket-target">Нарушитель: ${c.target}</div>
+                            <div class="ticket-desc">${c.desc}</div>
+                            <div style="font-size: 11px; color: var(--accent-blue);">Нажмите, чтобы открыть чат...</div>
+                        </div>
+                    `).join('');
+                }
+            } else {
+                panel.style.display = 'none';
+            }
+        }
+
+        function renderMyTickets() {
+            const container = document.getElementById('my-tickets-list');
+            if (!currentUser) return;
+
+            const myComplaints = allComplaints.filter(c => c.author === currentUser.username);
+
+            if (myComplaints.length === 0) {
+                container.innerHTML = `<div style="text-align: center; color: #888; margin-top: 20px;">У вас нет активных обращений.</div>`;
+                return;
+            }
+
+            container.innerHTML = myComplaints.map(c => `
+                <div class="ticket-item" onclick="openTicketChat('${c.id}')" style="margin-bottom: 10px; border-radius: 6px;">
+                    <div class="ticket-header"><span>На: ${c.target}</span><span>${c.date}</span></div>
+                    <div class="ticket-desc">${c.desc}</div>
+                    <div style="font-size: 11px; color: var(--accent-orange);">Открыть чат для ответа...</div>
+                </div>
+            `).join('');
+        }
+
+        function renderTicketChat(chatArray) {
+            const container = document.getElementById('ticket-chat-messages');
+            if (!chatArray) {
+                container.innerHTML = `<div style="color:#888; text-align:center;">Нет сообщений</div>`;
+                return;
+            }
+
+            const msgs = Object.values(chatArray).sort((a, b) => (a.time > b.time) ? 1 : -1);
+
+            container.innerHTML = msgs.map(m => `
+                <div class="chat-msg ${m.isAdmin ? 'admin' : 'player'}">
+                    <span class="chat-msg-info">${m.author} (${m.time})</span>
+                    ${m.text.replace(/\n/g, '<br>')}
+                </div>
+            `).join('');
+            
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function updateStatusButtons(currentStatus) {
+            const area = document.getElementById('status-control-area');
+            if (!currentUser || (!currentUser.canGrant)) {
+                area.innerHTML = '';
+                return;
+            }
+            area.innerHTML = `
+                <div style="font-size: 11px; color: #888; margin-bottom: 5px;">Ваш статус:</div>
+                <div class="status-toggle-area">
+                    <button class="online-btn ${currentStatus === 'online' ? 'active' : ''}" onclick="setUserStatus('online')">В сети</button>
+                    <button class="offline-btn ${currentStatus === 'offline' ? 'active' : ''}" onclick="setUserStatus('offline')">Не в сети</button>
+                </div>
+            `;
+        }
+
+        function updateUI() {
+            const authArea = document.getElementById('auth-area');
+            const createForumArea = document.getElementById('create-forum-area');
+            const adminPanelArea = document.getElementById('admin-panel-area');
+            const newsFormArea = document.getElementById('news-form-area');
+            const complaintBtnArea = document.getElementById('complaint-btn-area');
+            const statusControlArea = document.getElementById('status-control-area');
+
+            if(allUsers.length > 0) {
+                const fUser = allUsers.find(u => u.username === 'Forus');
+                const aUser = allUsers.find(u => u.username === 'Avelon');
+                if(fUser) document.getElementById('avatar-Forus').innerHTML = fUser.avatar ? `<img src="${fUser.avatar}">` : 'F';
+                if(aUser) document.getElementById('avatar-Avelon').innerHTML = aUser.avatar ? `<img src="${aUser.avatar}">` : 'A';
+            }
+
+            if (currentUser) {
+                const myTicketsCount = allComplaints.filter(c => c.author === currentUser.username).length;
+                const badgeHtml = myTicketsCount > 0 ? `<span class="ticket-badge">${myTicketsCount}</span>` : '';
+
+                authArea.innerHTML = `
+                    <div class="user-profile">
+                        <button class="btn-tickets" onclick="openMyTickets()">Мои обращения ${badgeHtml}</button>
+                        <button class="btn-avatar" onclick="openModal('avatar-modal')">Аватар</button>
+                        <button class="btn-logout" onclick="logout()">Выйти</button>
+                    </div>`;
+
+                complaintBtnArea.innerHTML = `<button class="action-btn blue" onclick="openModal('complaint-modal')">⚠ Подать жалобу / Связаться с админом</button>`;
+
+                if (currentUser.canGrant) {
+                    createForumArea.innerHTML = `<button class="action-btn" onclick="openModal('create-forum')">+ Создать новый форум</button>`;
+                    newsFormArea.innerHTML = `
+                        <div class="news-form">
+                            <input type="text" id="news-title-input" placeholder="Заголовок новости">
+                            <textarea id="news-text-input" placeholder="Текст новости..." rows="3"></textarea>
+                            <button onclick="createNews()">Опубликовать</button>
+                        </div>`;
+                    adminPanelArea.innerHTML = `
+                        <div class="panel" style="padding: 15px; margin-bottom: 20px;">
+                            <div class="panel-header" style="padding: 0 0 10px 0; border: none;">Управление</div>
+                            <button class="action-btn secondary" onclick="openModal('grant-admin')">Выдать админку</button>
+                        </div>`;
+                } else {
+                    createForumArea.innerHTML = '';
+                    newsFormArea.innerHTML = '';
+                    adminPanelArea.innerHTML = '';
+                }
+
+                if (currentUser.username === 'Forus' || currentUser.username === 'Avelon') {
+                    const currentStatus = localStorage.getItem('status_' + currentUser.username) || 'offline';
+                    updateStatusButtons(currentStatus);
+                } else {
+                    statusControlArea.innerHTML = '';
+                }
+
+            } else {
+                authArea.innerHTML = `
+                    <button class="btn-login" onclick="openModal('login')">Вход</button>
+                    <button class="btn-reg" onclick="openModal('register')">Регистрация</button>`;
+                createForumArea.innerHTML = '';
+                adminPanelArea.innerHTML = '';
+                newsFormArea.innerHTML = '';
+                complaintBtnArea.innerHTML = '';
+                statusControlArea.innerHTML = '';
+            }
+            renderForums();
+            renderNews();
+            renderComplaints();
+            if(currentUser) renderMyTickets();
+        }
+
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) closeModals();
+            });
+        });
+        
+        updateUI();
+    </script>
+</body>
+</html>
