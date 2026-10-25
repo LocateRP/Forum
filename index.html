@@ -3,156 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Форум Locate RP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Locate RP | Форум</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-body: #0f0f0f; --bg-panel: #1a1a1a; --bg-header: #141414; --border: #2a2a2a; --text-main: #e0e0e0; --text-muted: #888; --accent-orange: #f97316; --accent-green: #22c55e; --accent-red: #ef4444; --accent-blue: #3b82f6; --accent-discord: #5865F2; --font: 'Inter', sans-serif; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: var(--bg-body); color: var(--text-main); font-family: var(--font); font-size: 13px; line-height: 1.4; }
-        a { text-decoration: none; color: inherit; } button { font-family: var(--font); cursor: pointer; }
-        .navbar { background-color: var(--bg-header); border-bottom: 1px solid var(--border); padding: 0 20px; height: 50px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-        .logo-area { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; color: var(--accent-orange); }
-        .logo-area span { color: #fff; }
-        .auth-buttons { display: flex; gap: 10px; align-items: center; } .user-profile { display: flex; align-items: center; gap: 10px; font-size: 13px; }
-        .user-profile span { color: var(--accent-orange); font-weight: 600; }
-        .btn-login, .btn-reg, .btn-logout { padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; border: none; }
-        .btn-login { background: #2a2a2a; color: #fff; border: 1px solid #333; } .btn-reg { background: var(--accent-orange); color: #000; }
-        .btn-logout { background: transparent; color: var(--accent-red); border: 1px solid var(--accent-red); }
-        
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-overlay.active { display: flex; }
-        .modal { background: var(--bg-panel); border: 1px solid var(--border); padding: 25px; border-radius: 8px; width: 400px; display: flex; flex-direction: column; gap: 15px; }
-        .modal h2 { font-size: 18px; margin-bottom: 10px; text-align: center; }
-        .modal input, .modal textarea { background: #111; border: 1px solid var(--border); padding: 10px; border-radius: 4px; color: #fff; font-family: var(--font); resize: none; width: 100%; }
-        .modal input:focus, .modal textarea:focus { outline: 1px solid var(--accent-orange); }
-        .modal button { background: var(--accent-orange); color: #000; font-weight: 700; padding: 10px; border: none; border-radius: 4px; }
-        .modal-switch { text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 10px; cursor: pointer; }
-        .modal-switch:hover { color: #fff; }
-        
-        .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; display: grid; grid-template-columns: 2.2fr 1fr; gap: 20px; }
-        .page-title { grid-column: 1 / -1; font-size: 24px; font-weight: 700; margin-bottom: 5px; }
-        .page-subtitle { grid-column: 1 / -1; font-size: 12px; color: var(--text-muted); margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
-        .panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 20px; overflow: hidden; }
-        .panel-header { padding: 12px 15px; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
-        .section-item { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--border); transition: background 0.1s; cursor: pointer; }
-        .section-item:last-child { border-bottom: none; } .section-item:hover { background: #222; }
-        .sec-icon { width: 32px; height: 32px; background: #2a2a2a; border-radius: 4px; margin-right: 12px; display: flex; align-items: center; justify-content: center; color: var(--accent-orange); font-size: 16px; flex-shrink: 0; }
-        .sec-info { flex-grow: 1; } .sec-title { font-weight: 600; font-size: 14px; display: block; margin-bottom: 2px; }
-        .sec-desc { font-size: 11px; color: var(--text-muted); }
-        .delete-forum-btn { background: transparent; border: none; color: var(--accent-red); font-size: 16px; cursor: pointer; padding: 5px; margin-left: 10px; opacity: 0.5; transition: opacity 0.2s; }
-        .delete-forum-btn:hover { opacity: 1; }
-        .server-wrapper { padding: 10px; }
-        .server-card { background: #1f1f1f; border: 1px solid var(--border); border-radius: 6px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
-        .server-top { display: flex; justify-content: space-between; align-items: center; }
-        .server-name { font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 6px; }
-        .server-name .badge { font-size: 9px; background: #333; padding: 2px 5px; border-radius: 3px; color: #aaa; font-weight: 400; }
-        .status { padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 600; }
-        .status.offline { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
-        .user-card { padding: 10px 15px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
-        .avatar { width: 32px; height: 32px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; color: var(--accent-orange); flex-shrink: 0; overflow: hidden; }
-        .user-info { flex-grow: 1; } .user-name { font-weight: 600; font-size: 12px; display: block; } .user-role { font-size: 10px; color: var(--text-muted); }
-        .online-indicator { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-left: auto; }
-        .online-indicator.online { background-color: var(--accent-green); box-shadow: 0 0 5px var(--accent-green); }
-        .online-indicator.offline { background-color: #555; }
-        .action-btn { width: 100%; padding: 10px; background: var(--accent-orange); color: #000; font-weight: 700; border: none; border-radius: 4px; font-size: 13px; transition: opacity 0.2s; margin-bottom: 10px; }
-        .action-btn:hover { opacity: 0.9; } .action-btn.secondary { background: #2a2a2a; color: #fff; border: 1px solid #333; }
-        .action-btn.discord { background: var(--accent-discord); color: #fff; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 14px; }
-        .news-item { padding: 15px; border-bottom: 1px solid var(--border); } .news-item:last-child { border-bottom: none; }
-        .news-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .news-author { font-weight: 600; font-size: 13px; color: var(--accent-orange); } .news-date { font-size: 11px; color: var(--text-muted); }
-        .news-title { font-weight: 600; font-size: 14px; margin-bottom: 5px; color: #fff; } .news-text { font-size: 12px; color: #ccc; line-height: 1.5; }
-        .news-form { padding: 15px; background: #1f1f1f; border-bottom: 1px solid var(--border); }
-        .news-form input, .news-form textarea { width: 100%; background: #111; border: 1px solid var(--border); padding: 10px; border-radius: 4px; color: #fff; font-family: var(--font); font-size: 12px; margin-bottom: 10px; resize: none; }
-        .news-form button { width: 100%; background: var(--accent-orange); color: #000; font-weight: 700; padding: 10px; border: none; border-radius: 4px; font-size: 12px; }
-        
-        .forum-topic-modal { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px; width: 90%; max-width: 800px; height: 80vh; display: flex; flex-direction: column; }
-        .forum-topic-header { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-header); border-radius: 8px 8px 0 0; }
-        .forum-topic-header h2 { font-size: 18px; color: var(--accent-orange); } .forum-topic-close { background: none; border: none; color: #888; font-size: 20px; cursor: pointer; }
-        .forum-topic-close:hover { color: #fff; } .forum-topic-messages { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .topic-msg { background: #1f1f1f; padding: 12px; border-radius: 6px; border: 1px solid #2a2a2a; }
-        .topic-msg-header { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 11px; }
-        .topic-msg-author { color: var(--accent-orange); font-weight: 600; font-size: 12px; } .topic-msg-date { color: var(--text-muted); } .topic-msg-text { font-size: 13px; color: #ddd; }
-        .forum-topic-form { padding: 15px; border-top: 1px solid var(--border); background: #111; border-radius: 0 0 8px 8px; display: flex; gap: 10px; }
-        .forum-topic-form input { flex-grow: 1; background: #1f1f1f; border: 1px solid var(--border); padding: 10px; border-radius: 4px; color: #fff; }
-        .forum-topic-form button { background: var(--accent-orange); color: #000; font-weight: 700; border: none; padding: 0 20px; border-radius: 4px; }
+        :root {
+            --bg-deep: #0a0a0e;
+            --bg-panel: rgba(20, 20, 25, 0.6);
+            --bg-panel-hover: rgba(30, 30, 38, 0.8);
+            --bg-header: rgba(15, 15, 20, 0.8);
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #f1f1f4;
+            --text-muted: #90909e;
+            --accent: #f97316;
+            --accent-gradient: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --font: 'Manrope', sans-serif;
+            --radius: 12px;
+            --radius-sm: 8px;
+        }
 
-        .status-toggle-area { display: flex; gap: 5px; margin-top: 10px; }
-        .status-toggle-area button { flex: 1; padding: 5px; font-size: 10px; border-radius: 3px; border: none; font-weight: 600; cursor: pointer; }
-        .status-toggle-area .online-btn { background: rgba(34, 197, 94, 0.2); color: var(--accent-green); }
-        .status-toggle-area .offline-btn { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
-        .status-toggle-area .active { border: 1px solid currentColor; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         
-        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg-body); } ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-        @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+        body {
+            background-color: var(--bg-deep);
+            background-image: radial-gradient(circle at 15% 50%, rgba(249, 115, 22, 0.08) 0%, transparent 40%), radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.05) 0%, transparent 40%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: var(--font);
+            font-size: 14px;
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        button { font-family: var(--font); cursor: pointer; transition: all 0.2s ease; }
+
+        .navbar { background: var(--bg-header); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 30px; height: 70px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .logo-area { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 22px; }
+        .logo-badge { background: var(--accent-gradient); color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 16px; font-weight: 800; box-shadow: 0 0 15px rgba(249, 115, 22, 0.4); }
+        .logo-text { color: #fff; }
+
+        .auth-buttons { display: flex; gap: 12px; align-items: center; }
+        .user-profile { display: flex; align-items: center; gap: 15px; font-size: 14px; }
+        .user-profile span { color: var(--accent); font-weight: 700; background: rgba(249, 115, 22, 0.1); padding: 6px 12px; border-radius: 20px; }
+
+        .btn-login, .btn-reg, .btn-logout { padding: 8px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 700; border: none; }
+        .btn-login { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border); }
+        .btn-login:hover { background: rgba(255,255,255,0.1); }
+        .btn-reg { background: var(--accent-gradient); color: #fff; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3); }
+        .btn-reg:hover { transform: translateY(-1px); }
+        .btn-logout { background: transparent; color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .btn-logout:hover { background: rgba(239, 68, 68, 0.1); }
+
+        .container { max-width: 1280px; margin: 40px auto; padding: 0 20px; display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+        .page-header { grid-column: 1 / -1; margin-bottom: 10px; }
+        .page-title { font-size: 32px; font-weight: 800; margin-bottom: 10px; background: linear-gradient(to right, #fff, #a1a1aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .page-subtitle { font-size: 15px; color: var(--text-muted); }
+
+        .panel { background: var(--bg-panel); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 25px; overflow: hidden; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); }
+        .panel-header { padding: 18px 24px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 16px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); }
+
+        .section-item { display: flex; align-items: center; padding: 18px 24px; border-bottom: 1px solid var(--border); transition: all 0.2s; cursor: pointer; }
+        .section-item:last-child { border-bottom: none; }
+        .section-item:hover { background: var(--bg-panel-hover); transform: translateX(4px); }
+        .sec-icon { width: 48px; height: 48px; background: rgba(249, 115, 22, 0.1); border-radius: var(--radius-sm); margin-right: 20px; display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 22px; border: 1px solid rgba(249, 115, 22, 0.2); }
+        .sec-info { flex-grow: 1; }
+        .sec-title { font-weight: 700; font-size: 16px; display: block; margin-bottom: 4px; color: #fff; }
+        .sec-desc { font-size: 13px; color: var(--text-muted); }
+        .delete-forum-btn { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--accent-red); width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 18px; opacity: 0.7; }
+        .delete-forum-btn:hover { opacity: 1; background: rgba(239, 68, 68, 0.2); }
+
+        .news-item { padding: 20px 24px; border-bottom: 1px solid var(--border); }
+        .news-item:last-child { border-bottom: none; }
+        .news-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .news-author { font-weight: 700; font-size: 14px; color: var(--accent); }
+        .news-date { font-size: 12px; color: var(--text-muted); }
+        .news-title { font-weight: 700; font-size: 16px; margin-bottom: 8px; color: #fff; }
+        .news-text { font-size: 14px; color: #b0b0bc; line-height: 1.6; }
+
+        .news-form { padding: 20px 24px; background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--border); }
+        .news-form input, .news-form textarea { width: 100%; background: #000; border: 1px solid var(--border); padding: 12px 16px; border-radius: var(--radius-sm); color: #fff; font-family: var(--font); font-size: 14px; margin-bottom: 12px; resize: none; }
+        .news-form input:focus, .news-form textarea:focus { outline: none; border-color: var(--accent); }
+        .news-form button { width: 100%; background: var(--accent-gradient); color: #fff; font-weight: 700; padding: 12px; border: none; border-radius: var(--radius-sm); font-size: 14px; }
+
+        .user-card { padding: 12px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
+        .user-card:last-child { border-bottom: none; }
+        .avatar { width: 38px; height: 38px; background: linear-gradient(135deg, #2a2a35, #1a1a25); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; color: #fff; border: 2px solid rgba(255,255,255,0.1); }
+        .user-info { flex-grow: 1; }
+        .user-name { font-weight: 700; font-size: 14px; display: block; color: #fff; }
+        .user-role { font-size: 11px; color: var(--accent); font-weight: 600; text-transform: uppercase; }
+        .online-indicator { width: 10px; height: 10px; border-radius: 50%; }
+        .online-indicator.online { background-color: var(--accent-green); box-shadow: 0 0 10px var(--accent-green); }
+        .online-indicator.offline { background-color: #3f3f46; }
+
+        .team-role-header { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; padding: 15px 20px 5px 20px; background: rgba(0,0,0,0.1); }
+
+        .action-btn { width: 100%; padding: 14px; background: var(--accent-gradient); color: #fff; font-weight: 800; border: none; border-radius: var(--radius-sm); font-size: 14px; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.2); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .action-btn:hover { transform: translateY(-2px); }
+        .action-btn.secondary { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border); box-shadow: none; }
+        .action-btn.secondary:hover { background: rgba(255,255,255,0.1); }
+        .action-btn.discord { background: #5865F2; box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3); }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: #121216; border: 1px solid rgba(255,255,255,0.1); padding: 30px; border-radius: var(--radius); width: 420px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); animation: modalIn 0.3s ease; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .modal h2 { font-size: 24px; margin-bottom: 5px; text-align: center; font-weight: 800; }
+        .modal input, .modal textarea, .modal select { background: #0a0a0e; border: 1px solid var(--border); padding: 14px; border-radius: var(--radius-sm); color: #fff; font-family: var(--font); font-size: 14px; resize: none; width: 100%; }
+        .modal input:focus, .modal textarea:focus { outline: none; border-color: var(--accent); }
+        .modal button { background: var(--accent-gradient); color: #fff; font-weight: 800; padding: 14px; border: none; border-radius: var(--radius-sm); font-size: 15px; }
+        .modal-switch { text-align: center; font-size: 13px; color: var(--text-muted); margin-top: 10px; cursor: pointer; }
+        .modal-switch:hover { color: var(--accent); }
+
+        .forum-topic-modal { background: #121216; border: 1px solid var(--border); border-radius: var(--radius); width: 90%; max-width: 900px; height: 85vh; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .forum-topic-header { padding: 20px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); border-radius: var(--radius) var(--radius) 0 0; }
+        .forum-topic-header h2 { font-size: 22px; color: #fff; font-weight: 800; }
+        .forum-topic-close { background: none; border: none; color: var(--text-muted); font-size: 24px; }
+        .forum-topic-close:hover { color: var(--accent-red); }
+        .forum-topic-messages { flex-grow: 1; overflow-y: auto; padding: 30px; display: flex; flex-direction: column; gap: 20px; }
+        .topic-msg { background: rgba(255,255,255,0.03); padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border); border-left: 3px solid var(--accent); }
+        .topic-msg-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .topic-msg-author { color: var(--accent); font-weight: 700; font-size: 14px; }
+        .topic-msg-date { color: var(--text-muted); font-size: 12px; }
+        .topic-msg-text { font-size: 15px; color: #d4d4d8; line-height: 1.6; }
+        .forum-topic-form { padding: 20px 30px; border-top: 1px solid var(--border); background: rgba(0,0,0,0.2); border-radius: 0 0 var(--radius) var(--radius); display: flex; gap: 15px; }
+        .forum-topic-form input { flex-grow: 1; background: #0a0a0e; border: 1px solid var(--border); padding: 14px 20px; border-radius: var(--radius-sm); color: #fff; font-size: 14px; }
+        .forum-topic-form input:focus { outline: none; border-color: var(--accent); }
+        .forum-topic-form button { background: var(--accent-gradient); color: #fff; font-weight: 800; border: none; padding: 0 30px; border-radius: var(--radius-sm); font-size: 14px; }
+
+        /* Стиль для галочки */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #0a0a0e;
+            padding: 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
+        .checkbox-group input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+            cursor: pointer;
+            margin: 0;
+        }
+        .checkbox-group label {
+            font-size: 14px;
+            color: var(--text-main);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0e; }
+        ::-webkit-scrollbar-thumb { background: #2a2a35; border-radius: 4px; }
+
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; margin: 20px auto; gap: 20px; }
+            .navbar { padding: 0 15px; height: 60px; }
+            .page-title { font-size: 24px; }
+            .forum-topic-modal { width: 95%; height: 90vh; }
+        }
     </style>
 </head>
 <body>
 
     <nav class="navbar">
         <div class="logo-area">
-            <div style="background: var(--accent-orange); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 14px; font-weight: 800;">LOCATE</div>
-            <span>RP</span>
+            <span class="logo-badge">LOCATE</span>
+            <span class="logo-text">RP</span>
         </div>
         <div class="auth-buttons" id="auth-area"></div>
     </nav>
 
     <div class="container">
-        <div class="page-title">Форум Locate RP — Твой новый уровень ролевой игры!</div>
-        <div class="page-subtitle">Мы рекомендуем прочитать правила перед началом общения.</div>
+        <div class="page-header">
+            <div class="page-title">Форум Locate RP</div>
+            <div class="page-subtitle">Твой новый уровень ролевой игры. Общайся, следи за новостями и будь в курсе событий.</div>
+        </div>
 
         <div class="main-column">
             <div id="create-forum-area"></div>
+            
             <div class="panel">
                 <div class="panel-header">Разделы форума</div>
                 <div id="forums-container"></div>
             </div>
+
+            <!-- ПЛАШКА: НАБОРЫ НА ЛИДЕРА -->
+            <div class="panel">
+                <div class="panel-header">Наборы на Лидера <button id="create-faction-btn" class="action-btn" style="display:none; width:auto; padding: 8px 15px; margin:0;" onclick="createFactionChat()">+ Создать набор</button></div>
+                <div id="faction-list"></div>
+            </div>
+
             <div class="panel">
                 <div class="panel-header">Игровые сервера</div>
-                <div class="server-wrapper">
-                    <div class="server-card">
-                        <div class="server-top">
-                            <div class="server-name">Сервер Locate RP <span class="badge">NEW</span></div>
-                            <div class="status offline">Оффлайн</div>
+                <div style="padding: 20px 24px;">
+                    <div class="server-card" style="background: linear-gradient(135deg, rgba(30,30,35,0.8), rgba(20,20,25,0.8)); border: 1px solid var(--border); border-radius: 8px; padding: 18px; position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--accent-red);"></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="font-weight: 800; font-size: 16px; color: #fff; display: flex; align-items: center; gap: 10px;">Сервер Locate RP <span style="font-size: 10px; background: var(--accent); color: #000; padding: 3px 8px; border-radius: 4px; font-weight: 800;">NEW</span></div>
+                            <div style="padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; background: rgba(239, 68, 68, 0.15); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3);">Оффлайн</div>
                         </div>
                     </div>
                 </div>
             </div>
+            
             <div class="panel">
                 <div class="panel-header">Новости проекта</div>
                 <div id="news-form-area"></div>
                 <div id="news-container"></div>
             </div>
             
-            <!-- НОВЫЙ БЛОК DISCORD -->
             <div class="panel">
                 <div class="panel-header">Наше сообщество</div>
-                <div style="padding: 20px; text-align: center;">
-                    <p style="color: #ccc; margin-bottom: 15px; font-size: 14px;">Присоединяйтесь к нашему Discord-серверу, чтобы быть в курсе всех новостей, общаться с игроками и администрацией!</p>
-                    <a href="https://discord.gg/f35krVaDm" target="_blank" class="action-btn discord">
+                <div style="padding: 30px; text-align: center;">
+                    <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 15px;">Присоединяйтесь к нашему Discord-серверу!</p>
+                    <a href="https://discord.gg/kfHcNVGRB" target="_blank" class="action-btn discord">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
                         Войти в Discord
                     </a>
                 </div>
             </div>
-            <!-- КОНЕЦ БЛОКА DISCORD -->
-
         </div>
 
         <div class="sidebar">
             <div id="admin-panel-area"></div>
             <div class="panel">
-                <div class="panel-header">Администрация</div>
-                <div class="user-card">
-                    <div class="avatar" id="avatar-Forus">F</div>
-                    <div class="user-info"><span class="user-name">Forus</span><span class="user-role">Главный Админ</span></div>
-                    <div class="online-indicator" id="status-Forus"></div>
-                </div>
-                <div class="user-card">
-                    <div class="avatar" id="avatar-Avelon">A</div>
-                    <div class="user-info"><span class="user-name">Avelon</span><span class="user-role">Главный Админ</span></div>
-                    <div class="online-indicator" id="status-Avelon"></div>
-                </div>
-                <div id="status-control-area" style="padding: 10px 15px;"></div>
+                <div class="panel-header">Команда проекта</div>
+                <div id="team-container"></div>
             </div>
         </div>
     </div>
@@ -161,7 +243,7 @@
     <div class="modal-overlay" id="login-modal">
         <div class="modal">
             <h2>Вход</h2>
-            <input type="text" id="login-username" placeholder="Логин">
+            <input type="text" id="login-username" placeholder="Ваш Никнейм">
             <input type="password" id="login-password" placeholder="Пароль">
             <button onclick="login()">Войти</button>
             <div class="modal-switch" onclick="switchModal('login')">Нет аккаунта? Зарегистрироваться</div>
@@ -171,7 +253,7 @@
     <div class="modal-overlay" id="register-modal">
         <div class="modal">
             <h2>Регистрация</h2>
-            <input type="text" id="reg-username" placeholder="Логин">
+            <input type="text" id="reg-username" placeholder="Придумайте Никнейм">
             <input type="password" id="reg-password" placeholder="Пароль">
             <button onclick="register()">Создать аккаунт</button>
             <div class="modal-switch" onclick="switchModal('register')">Уже есть аккаунт? Войти</div>
@@ -188,11 +270,32 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="grant-admin-modal">
+    <!-- Окно создания набора -->
+    <div class="modal-overlay" id="create-faction-modal">
         <div class="modal">
-            <h2>Выдать админку</h2>
+            <h2>Создать набор</h2>
+            <input type="text" id="faction-name-input" placeholder="Название фракции (например, LSPD)">
+            <textarea id="faction-desc-input" placeholder="Описание (необязательно)" rows="2"></textarea>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="faction-open-checkbox">
+                <label for="faction-open-checkbox">Разрешить обычным игрокам писать</label>
+            </div>
+
+            <button onclick="submitFaction()">Создать</button>
+            <div class="modal-switch" onclick="closeModals()">Отмена</div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="grant-role-modal">
+        <div class="modal">
+            <h2>Выдать роль</h2>
             <input type="text" id="grant-username" placeholder="Никнейм пользователя">
-            <button onclick="grantAdmin()">Выдать права</button>
+            <select id="grant-role-select">
+                <!-- ОСТАВИЛИ ТОЛЬКО АДМИНА -->
+                <option value="Админ">Админ</option>
+            </select>
+            <button onclick="grantRole()">Выдать права</button>
             <div class="modal-switch" onclick="closeModals()">Отмена</div>
         </div>
     </div>
@@ -203,6 +306,7 @@
                 <h2 id="view-forum-title">Название форума</h2>
                 <button class="forum-topic-close" onclick="closeModals()">✖</button>
             </div>
+            <div id="allow-write-area"></div>
             <div class="forum-topic-messages" id="view-forum-messages"></div>
             <div id="view-forum-form-area"></div>
         </div>
@@ -210,7 +314,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, push, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, onValue, push, set, remove, onDisconnect, get, child, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCHLRcF0szzo2GWqffETxVQ1BZ_qUEiu_k",
@@ -231,112 +335,195 @@
         const newsRef = ref(db, 'news');
         const messagesRef = ref(db, 'messages');
         const statusRef = ref(db, 'status');
+        
+        const factionChatsRef = ref(db, 'faction_chats');
+        const factionMsgsRef = ref(db, 'faction_messages');
 
         let currentUser = null;
+        let userRole = 'Пользователь';
         let allUsers = [];
         let allForums = [];
+        let allFactions = [];
         let allNews = [];
+        
         let currentForumId = null;
-        let unsubscribeMessages = null;
+        let currentFactionId = null;
 
+        // Загрузка сессии
         const savedUser = localStorage.getItem('locate_currentUser');
         if (savedUser) {
-            try { currentUser = JSON.parse(savedUser); } catch(e) {}
+            try {
+                const parsed = JSON.parse(savedUser);
+                if (parsed.username === 'Forus') {
+                    parsed.role = 'Главный Админ';
+                    parsed.canGrant = true;
+                }
+                currentUser = parsed;
+                userRole = currentUser.role || 'Пользователь';
+                set(ref(db, 'status/' + currentUser.username), 'online');
+                onDisconnect(ref(db, 'status/' + currentUser.username)).set('offline');
+            } catch(e) {}
         }
 
-        // --- СЛУШАТЕЛИ БАЗЫ ---
-        onValue(usersRef, (snapshot) => {
-            const data = snapshot.val();
-            allUsers = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-            
-            if (allUsers.length === 0) {
-                push(usersRef, { username: 'Forus', password: 'pppppp00', role: 'Главный Админ', canGrant: true });
-                push(usersRef, { username: 'Avelon', password: 'adminLocateRP', role: 'Главный Админ', canGrant: true });
-            }
-
-            if (currentUser) {
-                const updated = allUsers.find(u => u.username === currentUser.username);
-                if (updated) {
-                    currentUser = updated;
-                    localStorage.setItem('locate_currentUser', JSON.stringify(currentUser));
-                }
-            }
-            updateUI();
-        });
-
-        onValue(forumsRef, (snapshot) => {
-            const data = snapshot.val();
-            allForums = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse() : [];
-            renderForums();
-        });
-
-        onValue(newsRef, (snapshot) => {
-            const data = snapshot.val();
-            allNews = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse() : [];
-            renderNews();
-        });
-
-        onValue(statusRef, (snapshot) => {
-            const statusData = snapshot.val() || {};
-            const forusEl = document.getElementById('status-Forus');
-            const avelonEl = document.getElementById('status-Avelon');
-            if(forusEl) forusEl.className = 'online-indicator ' + (statusData['Forus'] || 'offline');
-            if(avelonEl) avelonEl.className = 'online-indicator ' + (statusData['Avelon'] || 'offline');
-        });
-
-        // --- АВТОРИЗАЦИЯ ---
         window.openModal = (type) => document.getElementById(type + '-modal').classList.add('active');
-        window.closeModals = () => document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('active'));
+        window.closeModals = () => {
+            document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('active'));
+        };
         window.switchModal = (type) => { closeModals(); openModal(type === 'login' ? 'register' : 'login'); };
 
+        // --- РЕГИСТРАЦИЯ И ВХОД ---
         window.register = () => {
             const user = document.getElementById('reg-username').value.trim();
             const pass = document.getElementById('reg-password').value.trim();
             if (!user || !pass) return alert('Заполните все поля!');
-            if (allUsers.find(u => u.username.toLowerCase() === user.toLowerCase())) return alert('Этот логин уже занят!');
-            push(usersRef, { username: user, password: pass, role: 'Пользователь', canGrant: false });
-            alert('Регистрация успешна! Теперь войдите.');
-            switchModal('register');
+            
+            get(usersRef).then(snapshot => {
+                let exists = false;
+                snapshot.forEach(child => {
+                    if(child.val().username.toLowerCase() === user.toLowerCase()) exists = true;
+                });
+                if(exists) return alert('Этот ник уже занят!');
+
+                push(usersRef, { username: user, password: pass, role: 'Пользователь', canGrant: false }).then(() => {
+                    alert('Аккаунт создан! Войдите.');
+                    switchModal('register');
+                });
+            });
         };
 
         window.login = () => {
             const user = document.getElementById('login-username').value.trim();
             const pass = document.getElementById('login-password').value.trim();
-            const foundUser = allUsers.find(u => u.username === user && u.password === pass);
+            
+            get(usersRef).then(snapshot => {
+                let foundUser = null;
+                let foundId = null;
+                
+                snapshot.forEach(child => {
+                    const data = child.val();
+                    if (data.username.toLowerCase() === user.toLowerCase() && data.password === pass) {
+                        foundUser = data;
+                        foundId = child.key;
+                    }
+                });
 
-            if (foundUser) {
-                currentUser = foundUser;
-                localStorage.setItem('locate_currentUser', JSON.stringify(currentUser));
-                closeModals();
-                document.getElementById('login-username').value = '';
-                document.getElementById('login-password').value = '';
-                updateUI();
-            } else {
-                alert('Неверный логин или пароль!');
-            }
+                if (foundUser) {
+                    foundUser.id = foundId;
+                    if (foundUser.username === 'Forus') {
+                        foundUser.role = 'Главный Админ';
+                        foundUser.canGrant = true;
+                        update(ref(db, 'users/' + foundId), { role: 'Главный Админ', canGrant: true });
+                    }
+
+                    currentUser = foundUser;
+                    userRole = foundUser.role;
+                    localStorage.setItem('locate_currentUser', JSON.stringify(currentUser));
+                    
+                    set(ref(db, 'status/' + currentUser.username), 'online');
+                    onDisconnect(ref(db, 'status/' + currentUser.username)).set('offline');
+                    
+                    closeModals();
+                    // Принудительно обновляем интерфейс
+                    setTimeout(updateUI, 100); 
+                } else {
+                    alert('Неверный ник или пароль!');
+                }
+            });
         };
 
         window.logout = () => {
+            if (currentUser) set(ref(db, 'status/' + currentUser.username), 'offline');
             currentUser = null;
+            userRole = 'Пользователь';
             localStorage.removeItem('locate_currentUser');
             updateUI();
         };
 
-        // --- СТАТУС ---
-        window.setUserStatus = (status) => {
-            if (!currentUser) return;
-            set(ref(db, 'status/' + currentUser.username), status);
-            updateStatusButtons(status);
+        // --- ДЕЙСТВИЯ С НАБОРАМИ ---
+        window.createFactionChat = () => {
+            document.getElementById('faction-name-input').value = '';
+            document.getElementById('faction-desc-input').value = '';
+            document.getElementById('faction-open-checkbox').checked = false;
+            openModal('create-faction-modal');
         };
 
-        // --- ФОРУМЫ ---
+        window.submitFaction = () => {
+            const name = document.getElementById('faction-name-input').value.trim();
+            const desc = document.getElementById('faction-desc-input').value.trim();
+            const isOpen = document.getElementById('faction-open-checkbox').checked;
+            
+            if (!name) return alert('Введите название фракции!');
+            
+            // Берем данные из localStorage, чтобы не было ошибок
+            const saved = JSON.parse(localStorage.getItem('locate_currentUser'));
+            const authorName = saved ? saved.username : 'System';
+            
+            push(factionChatsRef, {
+                name: name,
+                desc: desc,
+                author: authorName,
+                date: new Date().toLocaleDateString('ru-RU'),
+                isOpen: isOpen
+            });
+            
+            closeModals();
+        };
+
+        window.deleteFaction = (event, id) => {
+            event.stopPropagation();
+            if (!confirm('Удалить этот набор?')) return;
+            remove(ref(db, 'faction_chats/' + id));
+            remove(ref(db, 'faction_messages/' + id));
+        };
+
+        window.openFactionChat = (id, title) => {
+            currentFactionId = id;
+            document.getElementById('view-forum-title').innerText = `Набор: ${title}`;
+            openModal('view-forum');
+
+            onValue(ref(db, 'faction_chats/' + id), (snapshot) => {
+                const data = snapshot.val();
+                if(data) renderFactionSettings(data.isOpen);
+            });
+
+            onValue(ref(db, 'faction_messages/' + id), (snapshot) => {
+                renderFactionMessages(snapshot.val());
+            });
+        };
+
+        window.toggleFactionOpen = (event) => {
+            set(ref(db, 'faction_chats/' + currentFactionId + '/isOpen'), event.target.checked);
+        };
+
+        window.sendFactionMessage = () => {
+            const input = document.getElementById('topic-msg-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            onValue(ref(db, 'faction_chats/' + currentFactionId), (snapshot) => {
+                const isOpen = snapshot.val()?.isOpen || false;
+                const saved = JSON.parse(localStorage.getItem('locate_currentUser'));
+                const isAdmin = saved && (saved.role === 'Админ' || saved.role === 'Главный Админ' || saved.username === 'Forus');
+
+                if (isOpen || isAdmin) {
+                    push(ref(db, 'faction_messages/' + currentFactionId), { 
+                        author: saved.username, 
+                        text: text, 
+                        date: new Date().toLocaleString('ru-RU') 
+                    });
+                    input.value = '';
+                } else {
+                    alert('Набор закрыт. Только администрация может писать.');
+                }
+            }, { onlyOnce: true });
+        };
+
+        // --- ДЕЙСТВИЯ С ФОРУМАМИ ---
         window.createForum = () => {
             const name = document.getElementById('forum-name').value.trim();
             const desc = document.getElementById('forum-desc').value.trim();
             if (!name) return alert('Введите название!');
-            push(forumsRef, { title: name, desc: desc || 'Без описания', icon: '💬' });
-            document.getElementById('forum-name').value = '';
-            document.getElementById('forum-desc').value = '';
+            push(forumsRef, { title: name, desc: desc || 'Без описания', icon: '💬', allowWrite: false });
             closeModals();
         };
 
@@ -351,67 +538,110 @@
             const title = document.getElementById('news-title-input').value.trim();
             const text = document.getElementById('news-text-input').value.trim();
             if (!title || !text) return alert('Заполните новость!');
-            const dateStr = new Date().toLocaleDateString('ru-RU');
-            push(newsRef, { author: currentUser.username, title: title, text: text, date: dateStr });
+            const saved = JSON.parse(localStorage.getItem('locate_currentUser'));
+            push(newsRef, { author: saved.username, title: title, text: text, date: new Date().toLocaleDateString('ru-RU') });
             document.getElementById('news-title-input').value = '';
             document.getElementById('news-text-input').value = '';
         };
 
-        window.grantAdmin = () => {
+        window.grantRole = () => {
             const targetUser = document.getElementById('grant-username').value.trim();
+            const newRole = document.getElementById('grant-role-select').value;
+            
             if (!targetUser) return alert('Введите никнейм!');
-            const userToGrant = allUsers.find(u => u.username.toLowerCase() === targetUser.toLowerCase());
-            if (!userToGrant) return alert('Пользователь не найден!');
-            set(ref(db, 'users/' + userToGrant.id + '/role'), 'Админ');
-            alert(`Пользователь ${userToGrant.username} теперь Админ!`);
-            document.getElementById('grant-username').value = '';
-            closeModals();
+            
+            get(usersRef).then(usersSnap => {
+                let targetUid = null;
+                usersSnap.forEach(childSnap => {
+                    if (childSnap.val().username.toLowerCase() === targetUser.toLowerCase()) {
+                        targetUid = childSnap.key;
+                    }
+                });
+
+                if (!targetUid) return alert('Пользователь не найден!');
+                
+                set(ref(db, 'users/' + targetUid + '/role'), newRole).then(() => {
+                    alert(`Пользователь ${targetUser} теперь ${newRole}!`);
+                    document.getElementById('grant-username').value = '';
+                    closeModals();
+                }).catch(err => alert('Ошибка: ' + err.message));
+            });
         };
 
         window.openForum = (id, title) => {
             currentForumId = id;
             document.getElementById('view-forum-title').innerText = title;
             openModal('view-forum');
-            if (unsubscribeMessages) unsubscribeMessages();
-            const thisForumMessagesRef = ref(db, 'messages/' + id);
-            unsubscribeMessages = onValue(thisForumMessagesRef, (snapshot) => {
-                renderTopicMessages(snapshot.val());
+            onValue(ref(db, 'messages/' + id), (snapshot) => {
+                const container = document.getElementById('view-forum-messages');
+                const formArea = document.getElementById('view-forum-form-area');
+                const msgs = snapshot.val() ? Object.values(snapshot.val()).reverse() : [];
+                container.innerHTML = msgs.length === 0 ? `<div style="text-align: center; color: var(--text-muted); margin-top: 30px;">Пусто...</div>` : msgs.map(m => `<div class="topic-msg"><div class="topic-msg-header"><span class="topic-msg-author">${m.author}</span><span class="topic-msg-date">${m.date}</span></div><div class="topic-msg-text">${m.text}</div></div>`).join('');
+                
+                const saved = JSON.parse(localStorage.getItem('locate_currentUser'));
+                if(saved) {
+                    formArea.innerHTML = `<div class="forum-topic-form"><input type="text" id="topic-msg-input" placeholder="Написать..."><button onclick="sendTopicMessage()">Отправить</button></div>`;
+                } else {
+                    formArea.innerHTML = `<div style="padding: 25px; text-align: center; color: var(--text-muted);">Войдите!</div>`;
+                }
             });
+            
+            document.getElementById('allow-write-area').innerHTML = '';
         };
-
+        
         window.sendTopicMessage = () => {
             const input = document.getElementById('topic-msg-input');
             const text = input.value.trim();
             if (!text) return;
-            if (!currentUser || !currentUser.role.includes('Админ')) return;
-
-            const dateStr = new Date().toLocaleDateString('ru-RU') + ' ' + new Date().toLocaleTimeString('ru-RU').slice(0, 5);
-            push(ref(db, 'messages/' + currentForumId), { author: currentUser.username, text: text, date: dateStr });
+            const saved = JSON.parse(localStorage.getItem('locate_currentUser'));
+            push(ref(db, 'messages/' + currentForumId), { author: saved.username, text, date: new Date().toLocaleString('ru-RU') });
             input.value = '';
         };
 
         // --- ОТРИСОВКА ---
+        function renderFactions() {
+            const container = document.getElementById('faction-list');
+            if (allFactions.length === 0) {
+                container.innerHTML = `<div style="padding: 30px; color: var(--text-muted); text-align: center;">Наборов пока нет.</div>`;
+                return;
+            }
+            
+            const saved = JSON.parse(localStorage.getItem('locate_currentUser'));
+            const isGA = saved && (saved.canGrant || saved.username === 'Forus');
+            
+            container.innerHTML = allFactions.map(f => `
+                <div class="section-item" onclick="openFactionChat('${f.id}', '${f.name.replace(/'/g, "\\'")}')">
+                    <div class="sec-icon">${f.isOpen ? '🟢' : '🔴'}</div>
+                    <div class="sec-info">
+                        <span class="sec-title">${f.name}</span>
+                        <span class="sec-desc">${f.desc || 'Без описания'} | Статус: ${f.isOpen ? 'Открыт' : 'Закрыт'}</span>
+                    </div>
+                    ${isGA ? `<button class="delete-forum-btn" onclick="deleteFaction(event, '${f.id}')">✖</button>` : ''}
+                </div>
+            `).join('');
+        }
+
         function renderForums() {
             const container = document.getElementById('forums-container');
             if (allForums.length === 0) {
-                container.innerHTML = `<div style="padding: 15px; color: #888; text-align: center;">Пока нет ни одного форума.</div>`;
+                container.innerHTML = `<div style="padding: 30px; color: var(--text-muted); text-align: center;">Форумов нет.</div>`;
                 return;
             }
-            const canDelete = currentUser && currentUser.canGrant;
-            container.innerHTML = allForums.map(f => {
-                const safeTitle = f.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                return `
-                <div class="section-item" onclick="openForum('${f.id}', '${safeTitle}')">
+            const saved = JSON.parse(localStorage.getItem('locate_currentUser'));
+            const isGA = saved && (saved.canGrant || saved.username === 'Forus');
+            
+            container.innerHTML = allForums.map(f => `
+                <div class="section-item" onclick="openForum('${f.id}', '${f.title.replace(/'/g, "\\'")}')">
                     <div class="sec-icon">${f.icon}</div>
                     <div class="sec-info"><span class="sec-title">${f.title}</span><span class="sec-desc">${f.desc}</span></div>
-                    ${canDelete ? `<button class="delete-forum-btn" onclick="deleteForum(event, '${f.id}')">✖</button>` : ''}
-                </div>`;
-            }).join('');
+                    ${isGA ? `<button class="delete-forum-btn" onclick="deleteForum(event, '${f.id}')">✖</button>` : ''}
+                </div>
+            `).join('');
         }
 
         function renderNews() {
             const container = document.getElementById('news-container');
-            if (allNews.length === 0) return container.innerHTML = `<div style="padding: 15px; color: #888; text-align: center;">Новостей пока нет.</div>`;
+            if (allNews.length === 0) return container.innerHTML = `<div style="padding: 30px; color: var(--text-muted); text-align: center;">Новостей пока нет.</div>`;
             container.innerHTML = allNews.map(n => `
                 <div class="news-item">
                     <div class="news-header"><span class="news-author">${n.author}</span><span class="news-date">${n.date}</span></div>
@@ -421,46 +651,67 @@
             `).join('');
         }
 
-        function renderTopicMessages(msgsObj) {
+        function renderFactionSettings(isOpen) {
+            const area = document.getElementById('allow-write-area');
+            const saved = JSON.parse(localStorage.getItem('locate_currentUser'));
+            const isGA = saved && (saved.canGrant || saved.username === 'Forus');
+
+            if(isGA) {
+                area.innerHTML = `<div style="display: flex; align-items: center; gap: 15px; padding: 15px 30px; background: rgba(249, 115, 22, 0.05); border-bottom: 1px solid var(--border); font-size: 14px; color: #fff;">
+                    <input type="checkbox" ${isOpen ? 'checked' : ''} onchange="toggleFactionOpen(event)" style="width: 20px; height: 20px; accent-color: var(--accent);">
+                    <label>Разрешить обычным игрокам писать</label>
+                </div>`;
+            } else { area.innerHTML = ''; }
+        }
+
+        function renderFactionMessages(msgsObj) {
             const container = document.getElementById('view-forum-messages');
             const formArea = document.getElementById('view-forum-form-area');
             const msgs = msgsObj ? Object.values(msgsObj).reverse() : [];
 
-            if (msgs.length === 0) {
-                container.innerHTML = `<div style="text-align: center; color: #888; margin-top: 20px;">Здесь пока пусто.</div>`;
-            } else {
-                container.innerHTML = msgs.map(m => `
-                    <div class="topic-msg">
-                        <div class="topic-msg-header"><span class="topic-msg-author">${m.author}</span><span class="topic-msg-date">${m.date}</span></div>
-                        <div class="topic-msg-text">${m.text}</div>
-                    </div>
-                `).join('');
-            }
+            container.innerHTML = msgs.length === 0 ? `<div style="text-align: center; color: var(--text-muted); margin-top: 30px;">Здесь пока пусто. Напишите первое сообщение!</div>` : msgs.map(m => `
+                <div class="topic-msg">
+                    <div class="topic-msg-header"><span class="topic-msg-author">${m.author}</span><span class="topic-msg-date">${m.date}</span></div>
+                    <div class="topic-msg-text">${m.text}</div>
+                </div>
+            `).join('');
 
-            if (currentUser && currentUser.role.includes('Админ')) {
-                formArea.innerHTML = `
-                    <div class="forum-topic-form">
-                        <input type="text" id="topic-msg-input" placeholder="Написать сообщение (только для админов)...">
-                        <button onclick="sendTopicMessage()">Отправить</button>
-                    </div>`;
+            const saved = JSON.parse(localStorage.getItem('locate_currentUser'));
+            if (saved) {
+                onValue(ref(db, 'faction_chats/' + currentFactionId), (snapshot) => {
+                    const isOpen = snapshot.val()?.isOpen || false;
+                    const isAdmin = saved && (saved.role === 'Админ' || saved.role === 'Главный Админ' || saved.username === 'Forus');
+                    
+                    if (isOpen || isAdmin) {
+                        formArea.innerHTML = `<div class="forum-topic-form"><input type="text" id="topic-msg-input" placeholder="Написать..."><button onclick="sendFactionMessage()">Отправить</button></div>`;
+                    } else {
+                        formArea.innerHTML = `<div style="padding: 25px; text-align: center; color: var(--accent-red);">Набор закрыт. Ждите открытия.</div>`;
+                    }
+                }, { onlyOnce: true });
             } else {
-                formArea.innerHTML = `<div style="padding: 15px; text-align: center; color: #888; font-size: 12px;">Только администрация может писать сюда.</div>`;
+                formArea.innerHTML = `<div style="padding: 25px; text-align: center; color: var(--text-muted);">Войдите!</div>`;
             }
         }
 
-        function updateStatusButtons(currentStatus) {
-            const area = document.getElementById('status-control-area');
-            if (!currentUser || (!currentUser.canGrant)) {
-                area.innerHTML = '';
-                return;
-            }
-            area.innerHTML = `
-                <div style="font-size: 11px; color: #888; margin-bottom: 5px;">Ваш статус:</div>
-                <div class="status-toggle-area">
-                    <button class="online-btn ${currentStatus === 'online' ? 'active' : ''}" onclick="setUserStatus('online')">В сети</button>
-                    <button class="offline-btn ${currentStatus === 'offline' ? 'active' : ''}" onclick="setUserStatus('offline')">Не в сети</button>
-                </div>
-            `;
+        function renderTeam(statusData = {}) {
+            const container = document.getElementById('team-container');
+            const rolesOrder = ['Главный Админ', 'Админ'];
+            const teamMembers = allUsers.filter(u => rolesOrder.includes(u.role));
+
+            if (teamMembers.length === 0) return container.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--text-muted);">Пусто.</div>`;
+
+            let html = '';
+            rolesOrder.forEach(role => {
+                const members = teamMembers.filter(u => u.role === role);
+                if (members.length > 0) {
+                    html += `<div class="team-role-header">${role}</div>`;
+                    members.forEach(u => {
+                        const isOnline = (statusData[u.username] || 'offline') === 'online';
+                        html += `<div class="user-card"><div class="avatar">${u.username[0].toUpperCase()}</div><div class="user-info"><span class="user-name">${u.username}</span><span class="user-role">${u.role}</span></div><div class="online-indicator ${isOnline ? 'online' : 'offline'}"></div></div>`;
+                    });
+                }
+            });
+            container.innerHTML = html;
         }
 
         function updateUI() {
@@ -468,58 +719,52 @@
             const createForumArea = document.getElementById('create-forum-area');
             const adminPanelArea = document.getElementById('admin-panel-area');
             const newsFormArea = document.getElementById('news-form-area');
-            const statusControlArea = document.getElementById('status-control-area');
+            const createFactionBtn = document.getElementById('create-faction-btn');
 
-            if (currentUser) {
-                authArea.innerHTML = `
-                    <div class="user-profile">
-                        <span>${currentUser.username} (${currentUser.role})</span>
-                        <button class="btn-logout" onclick="logout()">Выйти</button>
-                    </div>`;
+            // Берем данные из LocalStorage (самый надежный способ)
+            const saved = JSON.parse(localStorage.getItem('locate_currentUser'));
+            const isGA = saved && (saved.canGrant || saved.username === 'Forus');
 
-                if (currentUser.canGrant) {
-                    createForumArea.innerHTML = `<button class="action-btn" onclick="openModal('create-forum')">+ Создать новый форум</button>`;
-                    newsFormArea.innerHTML = `
-                        <div class="news-form">
-                            <input type="text" id="news-title-input" placeholder="Заголовок новости">
-                            <textarea id="news-text-input" placeholder="Текст новости..." rows="3"></textarea>
-                            <button onclick="createNews()">Опубликовать</button>
-                        </div>`;
-                    adminPanelArea.innerHTML = `
-                        <div class="panel" style="padding: 15px; margin-bottom: 20px;">
-                            <div class="panel-header" style="padding: 0 0 10px 0; border: none;">Управление</div>
-                            <button class="action-btn secondary" onclick="openModal('grant-admin')">Выдать админку</button>
-                        </div>`;
-                } else {
-                    createForumArea.innerHTML = '';
-                    newsFormArea.innerHTML = '';
-                    adminPanelArea.innerHTML = '';
+            if (saved) {
+                authArea.innerHTML = `<div class="user-profile"><span>${saved.username} (${saved.role})</span><button class="btn-logout" onclick="logout()">Выйти</button></div>`;
+                
+                if (isGA) {
+                    createFactionBtn.style.display = 'block';
+                    createForumArea.innerHTML = `<button class="action-btn" onclick="openModal('create-forum')">+ Создать форум</button>`;
+                    newsFormArea.innerHTML = `<div class="news-form"><input type="text" id="news-title-input" placeholder="Заголовок"><textarea id="news-text-input" placeholder="Текст" rows="3"></textarea><button onclick="createNews()">Опубликовать</button></div>`;
+                    adminPanelArea.innerHTML = `<div class="panel" style="padding: 20px;"><div class="panel-header" style="border: none; padding: 0 0 10px 0;">Управление</div><button class="action-btn secondary" onclick="openModal('grant-role-modal')">Выдать роль</button></div>`;
+                } else { 
+                    createFactionBtn.style.display = 'none';
+                    createForumArea.innerHTML = ''; 
+                    newsFormArea.innerHTML = ''; 
+                    adminPanelArea.innerHTML = ''; 
                 }
-
-                if (currentUser.username === 'Forus' || currentUser.username === 'Avelon') {
-                    const currentStatus = localStorage.getItem('status_' + currentUser.username) || 'offline';
-                    updateStatusButtons(currentStatus);
-                } else {
-                    statusControlArea.innerHTML = '';
-                }
-
             } else {
-                authArea.innerHTML = `
-                    <button class="btn-login" onclick="openModal('login')">Вход</button>
-                    <button class="btn-reg" onclick="openModal('register')">Регистрация</button>`;
-                createForumArea.innerHTML = '';
-                adminPanelArea.innerHTML = '';
+                authArea.innerHTML = `<button class="btn-login" onclick="openModal('login')">Вход</button><button class="btn-reg" onclick="openModal('register')">Регистрация</button>`;
+                createFactionBtn.style.display = 'none';
+                createForumArea.innerHTML = ''; 
+                adminPanelArea.innerHTML = ''; 
                 newsFormArea.innerHTML = '';
-                statusControlArea.innerHTML = '';
             }
-            renderForums();
-            renderNews();
+            renderForums(); renderNews(); renderFactions();
         }
 
+        onValue(usersRef, (s) => { 
+            allUsers = s.val() ? Object.keys(s.val()).map(k => ({ id: k, ...s.val()[k] })) : []; 
+            renderTeam(); 
+            // Если мы залогинены, обновляем интерфейс
+            if (localStorage.getItem('locate_currentUser')) {
+                updateUI();
+            }
+        });
+
+        onValue(forumsRef, (s) => { allForums = s.val() ? Object.keys(s.val()).map(k => ({ id: k, ...s.val()[k] })).reverse() : []; renderForums(); });
+        onValue(factionChatsRef, (s) => { allFactions = s.val() ? Object.keys(s.val()).map(k => ({ id: k, ...s.val()[k] })).reverse() : []; renderFactions(); });
+        onValue(newsRef, (s) => { allNews = s.val() ? Object.keys(s.val()).map(k => ({ id: k, ...s.val()[k] })).reverse() : []; renderNews(); });
+        onValue(statusRef, (s) => { renderTeam(s.val() || {}); });
+
         document.querySelectorAll('.modal-overlay').forEach(overlay => {
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) closeModals();
-            });
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModals(); });
         });
         
         updateUI();
