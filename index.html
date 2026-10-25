@@ -6,7 +6,7 @@
     <title>Форум Locate RP</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-body: #0f0f0f; --bg-panel: #1a1a1a; --bg-header: #141414; --border: #2a2a2a; --text-main: #e0e0e0; --text-muted: #888; --accent-orange: #f97316; --accent-green: #22c55e; --accent-red: #ef4444; --accent-blue: #3b82f6; --font: 'Inter', sans-serif; }
+        :root { --bg-body: #0f0f0f; --bg-panel: #1a1a1a; --bg-header: #141414; --border: #2a2a2a; --text-main: #e0e0e0; --text-muted: #888; --accent-orange: #f97316; --accent-green: #22c55e; --accent-red: #ef4444; --accent-blue: #3b82f6; --accent-discord: #5865F2; --font: 'Inter', sans-serif; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background-color: var(--bg-body); color: var(--text-main); font-family: var(--font); font-size: 13px; line-height: 1.4; }
         a { text-decoration: none; color: inherit; } button { font-family: var(--font); cursor: pointer; }
@@ -15,18 +15,15 @@
         .logo-area span { color: #fff; }
         .auth-buttons { display: flex; gap: 10px; align-items: center; } .user-profile { display: flex; align-items: center; gap: 10px; font-size: 13px; }
         .user-profile span { color: var(--accent-orange); font-weight: 600; }
-        .btn-login, .btn-reg, .btn-logout, .btn-avatar, .btn-tickets { padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; border: none; }
+        .btn-login, .btn-reg, .btn-logout { padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; border: none; }
         .btn-login { background: #2a2a2a; color: #fff; border: 1px solid #333; } .btn-reg { background: var(--accent-orange); color: #000; }
         .btn-logout { background: transparent; color: var(--accent-red); border: 1px solid var(--accent-red); }
-        .btn-avatar { background: #2a2a2a; color: #fff; border: 1px solid #333; }
-        .btn-tickets { background: var(--accent-blue); color: #fff; position: relative; }
-        .ticket-badge { position: absolute; top: -5px; right: -5px; background: var(--accent-red); color: #fff; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; display: flex; align-items: center; justify-content: center; }
         
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
         .modal-overlay.active { display: flex; }
         .modal { background: var(--bg-panel); border: 1px solid var(--border); padding: 25px; border-radius: 8px; width: 400px; display: flex; flex-direction: column; gap: 15px; }
         .modal h2 { font-size: 18px; margin-bottom: 10px; text-align: center; }
-        .modal input, .modal textarea, .modal select { background: #111; border: 1px solid var(--border); padding: 10px; border-radius: 4px; color: #fff; font-family: var(--font); resize: none; width: 100%; }
+        .modal input, .modal textarea { background: #111; border: 1px solid var(--border); padding: 10px; border-radius: 4px; color: #fff; font-family: var(--font); resize: none; width: 100%; }
         .modal input:focus, .modal textarea:focus { outline: 1px solid var(--accent-orange); }
         .modal button { background: var(--accent-orange); color: #000; font-weight: 700; padding: 10px; border: none; border-radius: 4px; }
         .modal-switch { text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 10px; cursor: pointer; }
@@ -53,14 +50,13 @@
         .status.offline { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
         .user-card { padding: 10px 15px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
         .avatar { width: 32px; height: 32px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; color: var(--accent-orange); flex-shrink: 0; overflow: hidden; }
-        .avatar img { width: 100%; height: 100%; object-fit: cover; }
         .user-info { flex-grow: 1; } .user-name { font-weight: 600; font-size: 12px; display: block; } .user-role { font-size: 10px; color: var(--text-muted); }
         .online-indicator { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-left: auto; }
         .online-indicator.online { background-color: var(--accent-green); box-shadow: 0 0 5px var(--accent-green); }
         .online-indicator.offline { background-color: #555; }
         .action-btn { width: 100%; padding: 10px; background: var(--accent-orange); color: #000; font-weight: 700; border: none; border-radius: 4px; font-size: 13px; transition: opacity 0.2s; margin-bottom: 10px; }
         .action-btn:hover { opacity: 0.9; } .action-btn.secondary { background: #2a2a2a; color: #fff; border: 1px solid #333; }
-        .action-btn.blue { background: var(--accent-blue); color: #fff; }
+        .action-btn.discord { background: var(--accent-discord); color: #fff; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 14px; }
         .news-item { padding: 15px; border-bottom: 1px solid var(--border); } .news-item:last-child { border-bottom: none; }
         .news-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .news-author { font-weight: 600; font-size: 13px; color: var(--accent-orange); } .news-date { font-size: 11px; color: var(--text-muted); }
@@ -79,22 +75,6 @@
         .forum-topic-form { padding: 15px; border-top: 1px solid var(--border); background: #111; border-radius: 0 0 8px 8px; display: flex; gap: 10px; }
         .forum-topic-form input { flex-grow: 1; background: #1f1f1f; border: 1px solid var(--border); padding: 10px; border-radius: 4px; color: #fff; }
         .forum-topic-form button { background: var(--accent-orange); color: #000; font-weight: 700; border: none; padding: 0 20px; border-radius: 4px; }
-        
-        .ticket-item { padding: 15px; border-bottom: 1px solid var(--border); background: #1a1a1a; cursor: pointer; transition: background 0.1s; }
-        .ticket-item:hover { background: #222; }
-        .ticket-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 11px; color: var(--text-muted); }
-        .ticket-target { color: var(--accent-red); font-weight: 700; font-size: 13px; margin-bottom: 5px; }
-        .ticket-desc { font-size: 12px; color: #ccc; margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
-        .ticket-chat-area { display: flex; flex-direction: column; height: 100%; }
-        .ticket-chat-messages { flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #111; }
-        .chat-msg { max-width: 80%; padding: 8px 12px; border-radius: 6px; font-size: 12px; line-height: 1.4; }
-        .chat-msg.player { align-self: flex-start; background: #2a2a2a; color: #fff; border: 1px solid #333; }
-        .chat-msg.admin { align-self: flex-end; background: rgba(249, 115, 22, 0.2); color: #fff; border: 1px solid var(--accent-orange); }
-        .chat-msg-info { font-size: 9px; color: #888; margin-bottom: 2px; display: block; }
-        .ticket-chat-form { display: flex; gap: 10px; padding: 15px; background: #1a1a1a; border-top: 1px solid var(--border); }
-        .ticket-chat-form input { flex-grow: 1; background: #111; border: 1px solid #333; padding: 10px; border-radius: 4px; color: #fff; }
-        .ticket-chat-form button { background: var(--accent-orange); color: #000; font-weight: 700; border: none; padding: 0 20px; border-radius: 4px; }
 
         .status-toggle-area { display: flex; gap: 5px; margin-top: 10px; }
         .status-toggle-area button { flex: 1; padding: 5px; font-size: 10px; border-radius: 3px; border: none; font-weight: 600; cursor: pointer; }
@@ -121,7 +101,6 @@
         <div class="page-subtitle">Мы рекомендуем прочитать правила перед началом общения.</div>
 
         <div class="main-column">
-            <div id="complaint-btn-area"></div>
             <div id="create-forum-area"></div>
             <div class="panel">
                 <div class="panel-header">Разделы форума</div>
@@ -143,14 +122,24 @@
                 <div id="news-form-area"></div>
                 <div id="news-container"></div>
             </div>
+            
+            <!-- НОВЫЙ БЛОК DISCORD -->
+            <div class="panel">
+                <div class="panel-header">Наше сообщество</div>
+                <div style="padding: 20px; text-align: center;">
+                    <p style="color: #ccc; margin-bottom: 15px; font-size: 14px;">Присоединяйтесь к нашему Discord-серверу, чтобы быть в курсе всех новостей, общаться с игроками и администрацией!</p>
+                    <a href="https://discord.gg/f35krVaDm" target="_blank" class="action-btn discord">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
+                        Войти в Discord
+                    </a>
+                </div>
+            </div>
+            <!-- КОНЕЦ БЛОКА DISCORD -->
+
         </div>
 
         <div class="sidebar">
             <div id="admin-panel-area"></div>
-            <div class="panel" id="complaints-panel" style="display: none;">
-                <div class="panel-header">Входящие жалобы</div>
-                <div id="complaints-container"></div>
-            </div>
             <div class="panel">
                 <div class="panel-header">Администрация</div>
                 <div class="user-card">
@@ -219,55 +208,9 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="complaint-modal">
-        <div class="modal">
-            <h2>Подать жалобу</h2>
-            <input type="text" id="complaint-target" placeholder="Ник нарушителя">
-            <textarea id="complaint-desc" placeholder="Опишите ситуацию" rows="4"></textarea>
-            <input type="text" id="complaint-file" placeholder="Ссылка на фото/видео (доказательство)">
-            <button onclick="submitComplaint()">Отправить</button>
-            <div class="modal-switch" onclick="closeModals()">Отмена</div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="avatar-modal">
-        <div class="modal">
-            <h2>Сменить аватарку</h2>
-            <input type="text" id="avatar-url" placeholder="Ссылка на картинку (http://...)">
-            <button onclick="changeAvatar()">Сохранить</button>
-            <div class="modal-switch" onclick="closeModals()">Отмена</div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="my-tickets-modal">
-        <div class="forum-topic-modal">
-            <div class="forum-topic-header">
-                <h2>Мои обращения</h2>
-                <button class="forum-topic-close" onclick="closeModals()">✖</button>
-            </div>
-            <div id="my-tickets-list" style="flex-grow: 1; overflow-y: auto; padding: 20px;"></div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="ticket-chat-modal">
-        <div class="forum-topic-modal">
-            <div class="forum-topic-header">
-                <h2 id="ticket-chat-title">Чат жалобы</h2>
-                <button class="forum-topic-close" onclick="closeModals()">✖</button>
-            </div>
-            <div class="ticket-chat-area">
-                <div class="ticket-chat-messages" id="ticket-chat-messages"></div>
-                <div class="ticket-chat-form">
-                    <input type="text" id="ticket-reply-input" placeholder="Написать ответ...">
-                    <button onclick="sendTicketReply()">Отправить</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, push, set, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, onValue, push, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCHLRcF0szzo2GWqffETxVQ1BZ_qUEiu_k",
@@ -287,18 +230,14 @@
         const forumsRef = ref(db, 'forums');
         const newsRef = ref(db, 'news');
         const messagesRef = ref(db, 'messages');
-        const complaintsRef = ref(db, 'complaints');
         const statusRef = ref(db, 'status');
 
         let currentUser = null;
         let allUsers = [];
         let allForums = [];
         let allNews = [];
-        let allComplaints = [];
         let currentForumId = null;
-        let currentTicketId = null;
         let unsubscribeMessages = null;
-        let unsubscribeTicketChat = null;
 
         const savedUser = localStorage.getItem('locate_currentUser');
         if (savedUser) {
@@ -311,8 +250,8 @@
             allUsers = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
             
             if (allUsers.length === 0) {
-                push(usersRef, { username: 'Forus', password: 'pppppp00', role: 'Главный Админ', canGrant: true, avatar: '' });
-                push(usersRef, { username: 'Avelon', password: 'adminLocateRP', role: 'Главный Админ', canGrant: true, avatar: '' });
+                push(usersRef, { username: 'Forus', password: 'pppppp00', role: 'Главный Админ', canGrant: true });
+                push(usersRef, { username: 'Avelon', password: 'adminLocateRP', role: 'Главный Админ', canGrant: true });
             }
 
             if (currentUser) {
@@ -337,13 +276,6 @@
             renderNews();
         });
 
-        onValue(complaintsRef, (snapshot) => {
-            const data = snapshot.val();
-            allComplaints = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse() : [];
-            renderComplaints();
-            if(currentUser) renderMyTickets();
-        });
-
         onValue(statusRef, (snapshot) => {
             const statusData = snapshot.val() || {};
             const forusEl = document.getElementById('status-Forus');
@@ -362,7 +294,7 @@
             const pass = document.getElementById('reg-password').value.trim();
             if (!user || !pass) return alert('Заполните все поля!');
             if (allUsers.find(u => u.username.toLowerCase() === user.toLowerCase())) return alert('Этот логин уже занят!');
-            push(usersRef, { username: user, password: pass, role: 'Пользователь', canGrant: false, avatar: '' });
+            push(usersRef, { username: user, password: pass, role: 'Пользователь', canGrant: false });
             alert('Регистрация успешна! Теперь войдите.');
             switchModal('register');
         };
@@ -388,18 +320,6 @@
             currentUser = null;
             localStorage.removeItem('locate_currentUser');
             updateUI();
-        };
-
-        // --- АВАТАРКА ---
-        window.changeAvatar = () => {
-            const url = document.getElementById('avatar-url').value.trim();
-            if (!url) return alert('Введите ссылку!');
-            set(ref(db, 'users/' + currentUser.id + '/avatar'), url).then(() => {
-                currentUser.avatar = url;
-                localStorage.setItem('locate_currentUser', JSON.stringify(currentUser));
-                closeModals();
-                updateUI();
-            });
         };
 
         // --- СТАТУС ---
@@ -459,89 +379,15 @@
             });
         };
 
-        // --- ЖАЛОБЫ (ИСПРАВЛЕНО) ---
-        window.submitComplaint = () => {
-            const target = document.getElementById('complaint-target').value.trim();
-            const desc = document.getElementById('complaint-desc').value.trim();
-            const file = document.getElementById('complaint-file').value.trim();
-            if (!target || !desc) return alert('Заполните ник и описание!');
-
-            const dateStr = new Date().toLocaleDateString('ru-RU') + ' ' + new Date().toLocaleTimeString('ru-RU').slice(0, 5);
-            
-            // 1. Создаем саму жалобу
-            const newTicketRef = push(complaintsRef);
-            set(newTicketRef, { 
-                author: currentUser.username, 
-                target: target, 
-                desc: desc, 
-                file: file || 'Нет', 
-                date: dateStr,
-                status: 'open'
-            }).then(() => {
-                // 2. Отдельно создаем первое сообщение в чате
-                const firstMsgRef = ref(db, 'complaints/' + newTicketRef.key + '/chat/' + Date.now());
-                set(firstMsgRef, {
-                    author: currentUser.username,
-                    text: `Жалоба на: ${target}\n${desc}\nСсылка на док-во: ${file || 'Нет'}`,
-                    isAdmin: false,
-                    time: dateStr
-                });
-            }).catch((error) => {
-                console.error("Ошибка Firebase: ", error);
-                alert("Ошибка при отправке. Проверьте правила Firebase (Rules).");
-            });
-
-            document.getElementById('complaint-target').value = '';
-            document.getElementById('complaint-desc').value = '';
-            document.getElementById('complaint-file').value = '';
-            closeModals();
-            alert('Жалоба отправлена!');
-        };
-
-        window.openTicketChat = (ticketId) => {
-            currentTicketId = ticketId;
-            openModal('ticket-chat-modal');
-            
-            if (unsubscribeTicketChat) unsubscribeTicketChat();
-            
-            const chatRef = ref(db, 'complaints/' + ticketId + '/chat');
-            unsubscribeTicketChat = onValue(chatRef, (snapshot) => {
-                renderTicketChat(snapshot.val());
-            });
-
-            const isAdmin = currentUser && currentUser.canGrant;
-            const header = document.getElementById('ticket-chat-title');
-            header.innerHTML = `Чат жалобы ${isAdmin ? '<button onclick="closeTicket()" style="background:var(--accent-red);color:#fff;border:none;padding:5px 10px;border-radius:4px;margin-left:10px;cursor:pointer;">Закрыть</button>' : ''}`;
-        };
-
-        window.sendTicketReply = () => {
-            const input = document.getElementById('ticket-reply-input');
+        window.sendTopicMessage = () => {
+            const input = document.getElementById('topic-msg-input');
             const text = input.value.trim();
             if (!text) return;
+            if (!currentUser || !currentUser.role.includes('Админ')) return;
 
-            const isAdmin = currentUser.role.includes('Админ');
             const dateStr = new Date().toLocaleDateString('ru-RU') + ' ' + new Date().toLocaleTimeString('ru-RU').slice(0, 5);
-
-            const newMsgRef = ref(db, 'complaints/' + currentTicketId + '/chat/' + Date.now());
-            set(newMsgRef, {
-                author: currentUser.username,
-                text: text,
-                isAdmin: isAdmin,
-                time: dateStr
-            });
-
+            push(ref(db, 'messages/' + currentForumId), { author: currentUser.username, text: text, date: dateStr });
             input.value = '';
-        };
-
-        window.closeTicket = () => {
-            if (!confirm('Вы уверены, что хотите закрыть и удалить эту жалобу?')) return;
-            remove(ref(db, 'complaints/' + currentTicketId));
-            closeModals();
-        };
-
-        window.openMyTickets = () => {
-            openModal('my-tickets-modal');
-            renderMyTickets();
         };
 
         // --- ОТРИСОВКА ---
@@ -602,68 +448,6 @@
             }
         }
 
-        function renderComplaints() {
-            const panel = document.getElementById('complaints-panel');
-            const container = document.getElementById('complaints-container');
-
-            if (currentUser && currentUser.canGrant) {
-                panel.style.display = 'block';
-                if (allComplaints.length === 0) {
-                    container.innerHTML = `<div style="padding: 15px; color: #888; text-align: center;">Жалоб пока нет.</div>`;
-                } else {
-                    container.innerHTML = allComplaints.map(c => `
-                        <div class="ticket-item" onclick="openTicketChat('${c.id}')">
-                            <div class="ticket-header"><span>От: ${c.author}</span><span>${c.date}</span></div>
-                            <div class="ticket-target">Нарушитель: ${c.target}</div>
-                            <div class="ticket-desc">${c.desc}</div>
-                            <div style="font-size: 11px; color: var(--accent-blue);">Нажмите, чтобы открыть чат...</div>
-                        </div>
-                    `).join('');
-                }
-            } else {
-                panel.style.display = 'none';
-            }
-        }
-
-        function renderMyTickets() {
-            const container = document.getElementById('my-tickets-list');
-            if (!currentUser) return;
-
-            const myComplaints = allComplaints.filter(c => c.author === currentUser.username);
-
-            if (myComplaints.length === 0) {
-                container.innerHTML = `<div style="text-align: center; color: #888; margin-top: 20px;">У вас нет активных обращений.</div>`;
-                return;
-            }
-
-            container.innerHTML = myComplaints.map(c => `
-                <div class="ticket-item" onclick="openTicketChat('${c.id}')" style="margin-bottom: 10px; border-radius: 6px;">
-                    <div class="ticket-header"><span>На: ${c.target}</span><span>${c.date}</span></div>
-                    <div class="ticket-desc">${c.desc}</div>
-                    <div style="font-size: 11px; color: var(--accent-orange);">Открыть чат для ответа...</div>
-                </div>
-            `).join('');
-        }
-
-        function renderTicketChat(chatArray) {
-            const container = document.getElementById('ticket-chat-messages');
-            if (!chatArray) {
-                container.innerHTML = `<div style="color:#888; text-align:center;">Нет сообщений</div>`;
-                return;
-            }
-
-            const msgs = Object.values(chatArray).sort((a, b) => (a.time > b.time) ? 1 : -1);
-
-            container.innerHTML = msgs.map(m => `
-                <div class="chat-msg ${m.isAdmin ? 'admin' : 'player'}">
-                    <span class="chat-msg-info">${m.author} (${m.time})</span>
-                    ${m.text.replace(/\n/g, '<br>')}
-                </div>
-            `).join('');
-            
-            container.scrollTop = container.scrollHeight;
-        }
-
         function updateStatusButtons(currentStatus) {
             const area = document.getElementById('status-control-area');
             if (!currentUser || (!currentUser.canGrant)) {
@@ -684,28 +468,14 @@
             const createForumArea = document.getElementById('create-forum-area');
             const adminPanelArea = document.getElementById('admin-panel-area');
             const newsFormArea = document.getElementById('news-form-area');
-            const complaintBtnArea = document.getElementById('complaint-btn-area');
             const statusControlArea = document.getElementById('status-control-area');
 
-            if(allUsers.length > 0) {
-                const fUser = allUsers.find(u => u.username === 'Forus');
-                const aUser = allUsers.find(u => u.username === 'Avelon');
-                if(fUser) document.getElementById('avatar-Forus').innerHTML = fUser.avatar ? `<img src="${fUser.avatar}">` : 'F';
-                if(aUser) document.getElementById('avatar-Avelon').innerHTML = aUser.avatar ? `<img src="${aUser.avatar}">` : 'A';
-            }
-
             if (currentUser) {
-                const myTicketsCount = allComplaints.filter(c => c.author === currentUser.username).length;
-                const badgeHtml = myTicketsCount > 0 ? `<span class="ticket-badge">${myTicketsCount}</span>` : '';
-
                 authArea.innerHTML = `
                     <div class="user-profile">
-                        <button class="btn-tickets" onclick="openMyTickets()">Мои обращения ${badgeHtml}</button>
-                        <button class="btn-avatar" onclick="openModal('avatar-modal')">Аватар</button>
+                        <span>${currentUser.username} (${currentUser.role})</span>
                         <button class="btn-logout" onclick="logout()">Выйти</button>
                     </div>`;
-
-                complaintBtnArea.innerHTML = `<button class="action-btn blue" onclick="openModal('complaint-modal')">⚠ Подать жалобу / Связаться с админом</button>`;
 
                 if (currentUser.canGrant) {
                     createForumArea.innerHTML = `<button class="action-btn" onclick="openModal('create-forum')">+ Создать новый форум</button>`;
@@ -740,13 +510,10 @@
                 createForumArea.innerHTML = '';
                 adminPanelArea.innerHTML = '';
                 newsFormArea.innerHTML = '';
-                complaintBtnArea.innerHTML = '';
                 statusControlArea.innerHTML = '';
             }
             renderForums();
             renderNews();
-            renderComplaints();
-            if(currentUser) renderMyTickets();
         }
 
         document.querySelectorAll('.modal-overlay').forEach(overlay => {
@@ -758,4 +525,4 @@
         updateUI();
     </script>
 </body>
-</html> 
+</html>
