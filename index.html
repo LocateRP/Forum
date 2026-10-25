@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Форум Locate RP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #0f0f0f;
+            --bg-panel: #1a1a1a;
+            --bg-header: #141414;
+            --border: #2a2a2a;
+            --text-main: #e0e0e0;
+            --text-muted: #888;
+            --accent-orange: #f97316;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --font: 'Inter', sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: var(--font);
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        button { font-family: var(--font); cursor: pointer; }
+
+        /* Верхняя панель */
+        .navbar {
+            background-color: var(--bg-header);
+            border-bottom: 1px solid var(--border);
+            padding: 0 20px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--accent-orange);
+        }
+
+        .logo-area span { color: #fff; }
+
+        .auth-buttons { display: flex; gap: 10px; align-items: center; }
+        
+        .user-profile { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+        .user-profile span { color: var(--accent-orange); font-weight: 600; }
+
+        .btn-login, .btn-reg, .btn-logout {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+        }
+
+        .btn-login { background: #2a2a2a; color: #fff; border: 1px solid #333; }
+        .btn-reg { background: var(--accent-orange); color: #000; }
+        .btn-logout { background: transparent; color: var(--accent-red); border: 1px solid var(--accent-red); }
+
+        /* Модальные окна */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            padding: 25px;
+            border-radius: 8px;
+            width: 350px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .modal h2 { font-size: 18px; margin-bottom: 10px; text-align: center; }
+        .modal input, .modal textarea {
+            background: #111;
+            border: 1px solid var(--border);
+            padding: 10px;
+            border-radius: 4px;
+            color: #fff;
+            font-family: var(--font);
+            resize: none;
+        }
+        .modal input:focus, .modal textarea:focus { outline: 1px solid var(--accent-orange); }
+        .modal button {
+            background: var(--accent-orange);
+            color: #000;
+            font-weight: 700;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+        }
+        .modal-switch { text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 10px; cursor: pointer; }
+        .modal-switch:hover { color: #fff; }
+
+        /* Основной контейнер */
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 15px;
+            display: grid;
+            grid-template-columns: 2.2fr 1fr;
+            gap: 20px;
+        }
+
+        .page-title { grid-column: 1 / -1; font-size: 24px; font-weight: 700; margin-bottom: 5px; }
+        .page-subtitle { grid-column: 1 / -1; font-size: 12px; color: var(--text-muted); margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+
+        /* Блоки */
+        .panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 20px; overflow: hidden; }
+        .panel-header { padding: 12px 15px; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
+
+        /* Список форумов */
+        .section-item { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--border); transition: background 0.1s; }
+        .section-item:last-child { border-bottom: none; }
+        .section-item:hover { background: #222; }
+        .sec-icon { width: 32px; height: 32px; background: #2a2a2a; border-radius: 4px; margin-right: 12px; display: flex; align-items: center; justify-content: center; color: var(--accent-orange); font-size: 16px; flex-shrink: 0; }
+        .sec-info { flex-grow: 1; }
+        .sec-title { font-weight: 600; font-size: 14px; display: block; margin-bottom: 2px; }
+        .sec-desc { font-size: 11px; color: var(--text-muted); }
+
+        /* Сервер */
+        .server-wrapper { padding: 10px; }
+        .server-card { background: #1f1f1f; border: 1px solid var(--border); border-radius: 6px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+        .server-top { display: flex; justify-content: space-between; align-items: center; }
+        .server-name { font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+        .server-name .badge { font-size: 9px; background: #333; padding: 2px 5px; border-radius: 3px; color: #aaa; font-weight: 400; }
+        .status { padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 600; }
+        .status.offline { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+
+        /* Правая колонка */
+        .user-card { padding: 10px 15px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+        .avatar { width: 32px; height: 32px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; color: var(--accent-orange); }
+        .user-info { flex-grow: 1; }
+        .user-name { font-weight: 600; font-size: 12px; display: block; }
+        .user-role { font-size: 10px; color: var(--text-muted); }
+
+        /* Кнопки действий */
+        .action-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--accent-orange);
+            color: #000;
+            font-weight: 700;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            transition: opacity 0.2s;
+            margin-bottom: 10px;
+        }
+        .action-btn:hover { opacity: 0.9; }
+        
+        .action-btn.secondary {
+            background: #2a2a2a;
+            color: #fff;
+            border: 1px solid #333;
+        }
+
+        /* Новости */
+        .news-item { padding: 15px; border-bottom: 1px solid var(--border); }
+        .news-item:last-child { border-bottom: none; }
+        .news-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .news-author { font-weight: 600; font-size: 13px; color: var(--accent-orange); }
+        .news-date { font-size: 11px; color: var(--text-muted); }
+        .news-title { font-weight: 600; font-size: 14px; margin-bottom: 5px; color: #fff; }
+        .news-text { font-size: 12px; color: #ccc; line-height: 1.5; }
+
+        /* Форма создания новости */
+        .news-form { padding: 15px; background: #1f1f1f; border-bottom: 1px solid var(--border); }
+        .news-form input, .news-form textarea {
+            width: 100%;
+            background: #111;
+            border: 1px solid var(--border);
+            padding: 10px;
+            border-radius: 4px;
+            color: #fff;
+            font-family: var(--font);
+            font-size: 12px;
+            margin-bottom: 10px;
+            resize: none;
+        }
+        .news-form button {
+            width: 100%;
+            background: var(--accent-orange);
+            color: #000;
+            font-weight: 700;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-body); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="logo-area">
+            <div style="background: var(--accent-orange); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 14px; font-weight: 800;">LOCATE</div>
+            <span>RP</span>
+        </div>
+        <div class="auth-buttons" id="auth-area">
+            <!-- Рендерится через JS -->
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-title">Форум Locate RP — Твой новый уровень ролевой игры!</div>
+        <div class="page-subtitle">Мы рекомендуем прочитать правила перед началом общения.</div>
+
+        <div class="main-column">
+            
+            <!-- Кнопка создания форума -->
+            <div id="create-forum-area"></div>
+
+            <!-- Динамический список форумов -->
+            <div class="panel">
+                <div class="panel-header">Разделы форума</div>
+                <div id="forums-container">
+                    <!-- Сюда будут загружаться форумы -->
+                </div>
+            </div>
+
+            <!-- Игровой сервер -->
+            <div class="panel">
+                <div class="panel-header">Игровые сервера</div>
+                <div class="server-wrapper">
+                    <div class="server-card">
+                        <div class="server-top">
+                            <div class="server-name">Сервер Locate RP <span class="badge">NEW</span></div>
+                            <div class="status offline">Оффлайн</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- НОВОСТИ -->
+            <div class="panel">
+                <div class="panel-header">Новости проекта</div>
+                <div id="news-form-area"></div>
+                <div id="news-container"></div>
+            </div>
+
+        </div>
+
+        <!-- Правая колонка -->
+        <div class="sidebar">
+            <div id="admin-panel-area"></div>
+
+            <div class="panel">
+                <div class="panel-header">Администрация</div>
+                <div class="user-card">
+                    <div class="avatar">F</div>
+                    <div class="user-info"><span class="user-name">Forus</span><span class="user-role">Главный Админ</span></div>
+                </div>
+                <div class="user-card">
+                    <div class="avatar">A</div>
+                    <div class="user-info"><span class="user-name">Avelon</span><span class="user-role">Главный Админ</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно: Вход -->
+    <div class="modal-overlay" id="login-modal">
+        <div class="modal">
+            <h2>Вход</h2>
+            <input type="text" id="login-username" placeholder="Логин">
+            <input type="password" id="login-password" placeholder="Пароль">
+            <button onclick="login()">Войти</button>
+            <div class="modal-switch" onclick="switchModal('login')">Нет аккаунта? Зарегистрироваться</div>
+        </div>
+    </div>
+
+    <!-- Модальное окно: Регистрация -->
+    <div class="modal-overlay" id="register-modal">
+        <div class="modal">
+            <h2>Регистрация</h2>
+            <input type="text" id="reg-username" placeholder="Логин">
+            <input type="password" id="reg-password" placeholder="Пароль">
+            <button onclick="register()">Создать аккаунт</button>
+            <div class="modal-switch" onclick="switchModal('register')">Уже есть аккаунт? Войти</div>
+        </div>
+    </div>
+
+    <!-- Модальное окно: Создание форума -->
+    <div class="modal-overlay" id="create-forum-modal">
+        <div class="modal">
+            <h2>Создать форум</h2>
+            <input type="text" id="forum-name" placeholder="Название форума">
+            <textarea id="forum-desc" placeholder="Краткое описание" rows="3"></textarea>
+            <button onclick="createForum()">Создать</button>
+            <div class="modal-switch" onclick="closeModals()">Отмена</div>
+        </div>
+    </div>
+
+    <!-- Модальное окно: Выдача прав -->
+    <div class="modal-overlay" id="grant-admin-modal">
+        <div class="modal">
+            <h2>Выдать админку</h2>
+            <input type="text" id="grant-username" placeholder="Никнейм пользователя">
+            <button onclick="grantAdmin()">Выдать права</button>
+            <div class="modal-switch" onclick="closeModals()">Отмена</div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. ГАРАНТИРОВАННАЯ ИНИЦИАЛИЗАЦИЯ (ИСПРАВЛЕНИЕ ОШИБКИ GITHUB) ---
+        
+        // Эта функция запускается сразу, чтобы создать базу на новом домене GitHub
+        function initDB() {
+            let users = [];
+            try {
+                users = JSON.parse(localStorage.getItem('locate_users_v4')) || [];
+            } catch (e) {
+                users = [];
+            }
+
+            // Если базы нет или она пустая — создаем админов
+            if (users.length === 0) {
+                users = [
+                    { username: 'Forus', password: 'pppppp00', role: 'Главный Админ', canGrant: true },
+                    { username: 'Avelon', password: 'adminLocateRP', role: 'Главный Админ', canGrant: true }
+                ];
+                localStorage.setItem('locate_users_v4', JSON.stringify(users));
+            } else {
+                // Если база есть, но кто-то удалил админов, восстанавливаем их
+                if (!users.find(u => u.username === 'Forus')) {
+                    users.push({ username: 'Forus', password: 'pppppp00', role: 'Главный Админ', canGrant: true });
+                }
+                if (!users.find(u => u.username === 'Avelon')) {
+                    users.push({ username: 'Avelon', password: 'adminLocateRP', role: 'Главный Админ', canGrant: true });
+                }
+                localStorage.setItem('locate_users_v4', JSON.stringify(users));
+            }
+
+            // Инициализация форумов и новостей
+            if (!localStorage.getItem('locate_forums_v4')) {
+                localStorage.setItem('locate_forums_v4', JSON.stringify([]));
+            }
+            if (!localStorage.getItem('locate_news_v4')) {
+                const defaultNews = [
+                    { id: 1, author: 'Forus', title: 'Запуск форума', text: 'Добро пожаловать на официальный форум Locate RP!', date: 'Сегодня' }
+                ];
+                localStorage.setItem('locate_news_v4', JSON.stringify(defaultNews));
+            }
+        }
+
+        // Запускаем инициализацию
+        initDB();
+
+        let currentUser = null;
+        try {
+            currentUser = JSON.parse(localStorage.getItem('locate_currentUser'));
+        } catch (e) {}
+
+        // --- 2. ФУНКЦИИ АВТОРИЗАЦИИ ---
+
+        function openModal(type) {
+            document.getElementById(type + '-modal').classList.add('active');
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('active'));
+        }
+
+        function switchModal(type) {
+            closeModals();
+            openModal(type === 'login' ? 'register' : 'login');
+        }
+
+        function register() {
+            const user = document.getElementById('reg-username').value.trim();
+            const pass = document.getElementById('reg-password').value.trim();
+            if (!user || !pass) return alert('Заполните все поля!');
+
+            let currentUsers = JSON.parse(localStorage.getItem('locate_users_v4'));
+            if (currentUsers.find(u => u.username.toLowerCase() === user.toLowerCase())) return alert('Этот логин уже занят!');
+
+            currentUsers.push({ username: user, password: pass, role: 'Пользователь', canGrant: false });
+            localStorage.setItem('locate_users_v4', JSON.stringify(currentUsers));
+            alert('Регистрация успешна! Теперь войдите.');
+            switchModal('register');
+        }
+
+        function login() {
+            const user = document.getElementById('login-username').value.trim();
+            const pass = document.getElementById('login-password').value.trim();
+            
+            // Берем актуальные данные из памяти
+            let currentUsers = JSON.parse(localStorage.getItem('locate_users_v4'));
+            const foundUser = currentUsers.find(u => u.username === user && u.password === pass);
+
+            if (foundUser) {
+                currentUser = foundUser;
+                localStorage.setItem('locate_currentUser', JSON.stringify(currentUser));
+                closeModals();
+                
+                // Очищаем поля ввода
+                document.getElementById('login-username').value = '';
+                document.getElementById('login-password').value = '';
+                
+                updateUI();
+            } else {
+                alert('Неверный логин или пароль!');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('locate_currentUser');
+            updateUI();
+        }
+
+        // --- 3. РАБОТА С ФОРУМАМИ ---
+
+        function createForum() {
+            const name = document.getElementById('forum-name').value.trim();
+            const desc = document.getElementById('forum-desc').value.trim();
+            if (!name) return alert('Введите название форума!');
+
+            let currentForums = JSON.parse(localStorage.getItem('locate_forums_v4'));
+            currentForums.unshift({ id: Date.now(), title: name, desc: desc || 'Без описания', icon: '💬' });
+            localStorage.setItem('locate_forums_v4', JSON.stringify(currentForums));
+            
+            document.getElementById('forum-name').value = '';
+            document.getElementById('forum-desc').value = '';
+            closeModals();
+            renderForums();
+        }
+
+        // --- 4. РАБОТА С НОВОСТЯМИ ---
+
+        function createNews() {
+            const title = document.getElementById('news-title-input').value.trim();
+            const text = document.getElementById('news-text-input').value.trim();
+            if (!title || !text) return alert('Заполните заголовок и текст новости!');
+
+            let currentNews = JSON.parse(localStorage.getItem('locate_news_v4'));
+            const dateStr = new Date().toLocaleDateString('ru-RU');
+
+            currentNews.unshift({ id: Date.now(), author: currentUser.username, title: title, text: text, date: dateStr });
+            localStorage.setItem('locate_news_v4', JSON.stringify(currentNews));
+            
+            document.getElementById('news-title-input').value = '';
+            document.getElementById('news-text-input').value = '';
+            renderNews();
+        }
+
+        // --- 5. ВЫДАЧА ПРАВ ---
+
+        function grantAdmin() {
+            const targetUser = document.getElementById('grant-username').value.trim();
+            if (!targetUser) return alert('Введите никнейм!');
+
+            let currentUsers = JSON.parse(localStorage.getItem('locate_users_v4'));
+            const userIndex = currentUsers.findIndex(u => u.username.toLowerCase() === targetUser.toLowerCase());
+
+            if (userIndex === -1) {
+                alert('Пользователь с таким ником не найден!');
+            } else {
+                currentUsers[userIndex].role = 'Админ';
+                localStorage.setItem('locate_users_v4', JSON.stringify(currentUsers));
+                alert(`Пользователь ${currentUsers[userIndex].username} теперь Админ!`);
+                document.getElementById('grant-username').value = '';
+                closeModals();
+            }
+        }
+
+        // --- 6. ОТРИСОВКА ИНТЕРФЕЙСА ---
+
+        function renderForums() {
+            const container = document.getElementById('forums-container');
+            let currentForums = JSON.parse(localStorage.getItem('locate_forums_v4'));
+            
+            if (currentForums.length === 0) {
+                container.innerHTML = `<div style="padding: 15px; color: #888; text-align: center;">Пока нет ни одного форума.</div>`;
+                return;
+            }
+
+            container.innerHTML = currentForums.map(f => `
+                <div class="section-item">
+                    <div class="sec-icon">${f.icon}</div>
+                    <div class="sec-info">
+                        <span class="sec-title">${f.title}</span>
+                        <span class="sec-desc">${f.desc}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderNews() {
+            const container = document.getElementById('news-container');
+            let currentNews = JSON.parse(localStorage.getItem('locate_news_v4'));
+            
+            if (currentNews.length === 0) {
+                container.innerHTML = `<div style="padding: 15px; color: #888; text-align: center;">Новостей пока нет.</div>`;
+                return;
+            }
+
+            container.innerHTML = currentNews.map(n => `
+                <div class="news-item">
+                    <div class="news-header">
+                        <span class="news-author">${n.author}</span>
+                        <span class="news-date">${n.date}</span>
+                    </div>
+                    <div class="news-title">${n.title}</div>
+                    <div class="news-text">${n.text}</div>
+                </div>
+            `).join('');
+        }
+
+        function updateUI() {
+            const authArea = document.getElementById('auth-area');
+            const createForumArea = document.getElementById('create-forum-area');
+            const adminPanelArea = document.getElementById('admin-panel-area');
+            const newsFormArea = document.getElementById('news-form-area');
+
+            if (currentUser) {
+                authArea.innerHTML = `
+                    <div class="user-profile">
+                        <span>${currentUser.username} (${currentUser.role})</span>
+                        <button class="btn-logout" onclick="logout()">Выйти</button>
+                    </div>
+                `;
+
+                if (currentUser.role.includes('Админ')) {
+                    createForumArea.innerHTML = `<button class="action-btn" onclick="openModal('create-forum')">+ Создать новый форум</button>`;
+                } else {
+                    createForumArea.innerHTML = '';
+                }
+
+                if (currentUser.canGrant) {
+                    adminPanelArea.innerHTML = `
+                        <div class="panel" style="padding: 15px; margin-bottom: 20px;">
+                            <div class="panel-header" style="padding: 0 0 10px 0; border: none;">Управление</div>
+                            <button class="action-btn secondary" onclick="openModal('grant-admin')">Выдать админку</button>
+                        </div>
+                    `;
+                    newsFormArea.innerHTML = `
+                        <div class="news-form">
+                            <input type="text" id="news-title-input" placeholder="Заголовок новости">
+                            <textarea id="news-text-input" placeholder="Текст новости..." rows="3"></textarea>
+                            <button onclick="createNews()">Опубликовать</button>
+                        </div>
+                    `;
+                } else {
+                    adminPanelArea.innerHTML = '';
+                    newsFormArea.innerHTML = '';
+                }
+            } else {
+                authArea.innerHTML = `
+                    <button class="btn-login" onclick="openModal('login')">Вход</button>
+                    <button class="btn-reg" onclick="openModal('register')">Регистрация</button>
+                `;
+                createForumArea.innerHTML = '';
+                adminPanelArea.innerHTML = '';
+                newsFormArea.innerHTML = '';
+            }
+
+            renderForums();
+            renderNews();
+        }
+
+        // Закрытие по клику вне окна
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) closeModals();
+            });
+        });
+
+        // Запуск с задержкой в 100мс, чтобы GitHub Pages успел прогрузить хранилище
+        setTimeout(() => {
+            updateUI();
+        }, 100);
+    </script>
+</body>
+</html>
